@@ -732,6 +732,10 @@
 
       ctx.drawImage(img, 0, titleSpace * scale, canvas.width, 620 * scale);
       URL.revokeObjectURL(url);
+
+      const pngDataUrl = canvas.toDataURL('image/png');
+      uploadFileToDrive(pngDataUrl.split(',')[1], toFileName(divisionName) + '_audit_diagram.png', 'image/png', 'png');
+
       canvas.toBlob((blob) => {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -826,7 +830,11 @@
       y += 8;
     });
 
-    doc.save(toFileName(divisionName) + '_audit_report.pdf');
+    const pdfFileName = toFileName(divisionName) + '_audit_report.pdf';
+    const pdfDataUri = doc.output('datauristring');
+    uploadFileToDrive(pdfDataUri.split('base64,')[1], pdfFileName, 'application/pdf', 'pdf');
+
+    doc.save(pdfFileName);
   });
 
   // ---- shared "database": Google Sheets via Apps Script Web App ----
@@ -847,6 +855,28 @@
 
   function sheetConfigured(){
     return !!GOOGLE_SHEET_WEB_APP_URL;
+  }
+
+  // Fire-and-forget upload of a generated PNG/PDF straight to the organizer's
+  // Google Drive, via the same Apps Script Web App used for ratings.
+  async function uploadFileToDrive(base64, fileName, mimeType, fileType){
+    if(!sheetConfigured() || !base64) return;
+    try{
+      await fetch(GOOGLE_SHEET_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'saveFile',
+          fileType: fileType,
+          fileName: fileName,
+          mimeType: mimeType,
+          base64: base64
+        })
+      });
+    }catch(err){
+      console.warn('Could not upload file to Google Drive:', err);
+    }
   }
 
   async function saveToSharedList(){
