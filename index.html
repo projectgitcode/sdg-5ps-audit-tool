@@ -346,15 +346,10 @@
   </main>
 
   <div class="toolbar-actions">
-    <button class="reset-btn primary-btn" id="cloudSaveBtn">Save to shared list</button>
-    <button class="reset-btn" id="saveBtn">Download flle</button>
-    <button class="reset-btn" id="loadBtn">Upload existing file</button>
-    <input type="file" id="loadFile" accept="application/json" style="display:none" />
-    <button class="reset-btn" id="downloadImgBtn">Download the diagram (PNG)</button>
-    <button class="reset-btn" id="downloadPdfBtn">Download report (PDF)</button>
+    <button class="reset-btn primary-btn" id="saveAllBtn">Save Entry (Sheet + PDF to Drive)</button>
     <button class="reset-btn" id="resetBtn">Reset</button>
   </div>
-  <p class="shared-note">Note: "Save to shared list" sends this entry straight to the organizer's Google Sheet — no extra steps for participants.</p>
+  <p class="shared-note">Note: "Save Entry" records the ratings in the organizer's Google Sheet and uploads a full PDF report (diagram + all pillar questions) to the organizer's Google Drive — no extra steps for participants.</p>
 
   <footer class="note">
      Quezon City Planning and Development Department - Special Projects Division
@@ -648,115 +643,52 @@
     updateDiagram();
   });
 
-  document.getElementById('saveBtn').addEventListener('click', () => {
-    const payload = {
-      tool: 'open-spaces-audit-tool-5-pillars',
-      version: 1,
-      lgu: document.getElementById('lguName').value || '',
-      savedAt: new Date().toISOString(),
-      ratings: state
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = toFileName(payload.lgu) + '_audit_scale.json';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  });
+  // ---- Google Apps Script Web App: single endpoint for both
+  // (1) appending ratings to the "Submissions" sheet, and
+  // (2) uploading the generated PDF report into Google Drive.
+  // See apps_script_code.gs for the backend script + deployment steps.
+  const GOOGLE_SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxYTTy69x-PWDVsRhanFqNzEz_LgQjPwmgyZqdwfS3TxnDcY3CjRNh3uQCfDzyoxb9UNg/exec';
 
-  document.getElementById('loadBtn').addEventListener('click', () => {
-    document.getElementById('loadFile').click();
-  });
+  function sheetConfigured(){
+    return !!GOOGLE_SHEET_WEB_APP_URL;
+  }
 
-  document.getElementById('loadFile').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try{
-        const data = JSON.parse(ev.target.result);
-        if(!data.ratings) throw new Error('This file has no ratings in it.');
-        DIMENSIONS.forEach(d => {
-          const loaded = data.ratings[d.id];
-          state[d.id] = (Array.isArray(loaded) && loaded.length === 5) ? loaded.slice() : new Array(5).fill(null);
-        });
-        if(typeof data.lgu === 'string') document.getElementById('lguName').value = data.lgu;
-        document.querySelectorAll('.dimension').forEach((section, dIdx) => {
-          const dim = DIMENSIONS[dIdx];
-          section.querySelectorAll('.toggle').forEach((toggleEl, qIdx) => {
-            refreshToggle(toggleEl, state[dim.id][qIdx]);
-          });
-        });
-        updateDiagram();
-      }catch(err){
-        alert('Could not load this file: ' + err.message);
-      }
-      e.target.value = '';
-    };
-    reader.readAsText(file);
-  });
+  // Renders the pentagon diagram (as currently shown on screen) to an
+  // offscreen canvas and resolves with that canvas, for embedding into the PDF.
+  function renderDiagramCanvas(){
+    return new Promise((resolve, reject) => {
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      const img = new Image();
+      img.onload = () => {
+        const scale = 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = 620 * scale;
+        canvas.height = 620 * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas);
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
 
-  document.getElementById('downloadImgBtn').addEventListener('click', () => {
-    const divisionName = (document.getElementById('lguName').value || '').trim();
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
-    const img = new Image();
-    img.onload = () => {
-      const scale = 2;
-      const titleSpace = divisionName ? 56 : 0; // reserved header area for the name
-      const canvas = document.createElement('canvas');
-      canvas.width = 620 * scale;
-      canvas.height = (620 + titleSpace) * scale;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Builds the full PDF (title, diagram image, then every pillar's questions
+  // with their A/B/C rating chip) and returns the jsPDF document instance.
+  async function buildFullReportPdf(divisionName){
+    const diagramCanvas = await renderDiagramCanvas();
 
-      if(divisionName){
-        const titleText = 'Name of Division/Group: ' + divisionName;
-        const maxTextWidth = canvas.width - 32 * scale;
-        let fontSize = 20 * scale;
-        ctx.fillStyle = '#123D28';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.font = 'bold ' + fontSize + 'px -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
-        while(ctx.measureText(titleText).width > maxTextWidth && fontSize > 10 * scale){
-          fontSize -= 1 * scale;
-          ctx.font = 'bold ' + fontSize + 'px -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
-        }
-        ctx.fillText(titleText, canvas.width / 2, (titleSpace / 2) * scale);
-      }
-
-      ctx.drawImage(img, 0, titleSpace * scale, canvas.width, 620 * scale);
-      URL.revokeObjectURL(url);
-
-      const pngDataUrl = canvas.toDataURL('image/png');
-      uploadFileToDrive(pngDataUrl.split(',')[1], toFileName(divisionName) + '_audit_diagram.png', 'image/png', 'png');
-
-      canvas.toBlob((blob) => {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = toFileName(divisionName) + '_audit_diagram.png';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      });
-    };
-    img.src = url;
-  });
-
-  document.getElementById('downloadPdfBtn').addEventListener('click', () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
     const marginX = 48;
     let y = 56;
-
-    const divisionName = (document.getElementById('lguName').value || '').trim();
 
     function ensureSpace(needed){
       if(y + needed > pageH - 48){
@@ -778,7 +710,16 @@
     doc.text('Division/Group: ' + (divisionName || '(not specified)'), marginX, y);
     y += 14;
     doc.text('Generated: ' + new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' }), marginX, y);
-    y += 24;
+    y += 20;
+
+    // Diagram image
+    const availW = pageW - marginX * 2;
+    const diagramDisplayW = Math.min(availW, 300);
+    const diagramDisplayH = diagramDisplayW * (diagramCanvas.height / diagramCanvas.width);
+    const diagramX = marginX + (availW - diagramDisplayW) / 2;
+    ensureSpace(diagramDisplayH + 12);
+    doc.addImage(diagramCanvas.toDataURL('image/png'), 'PNG', diagramX, y, diagramDisplayW, diagramDisplayH);
+    y += diagramDisplayH + 20;
 
     const rgb = {
       A: [46, 158, 79],
@@ -830,105 +771,84 @@
       y += 8;
     });
 
-    const pdfFileName = toFileName(divisionName) + '_audit_report.pdf';
-    const pdfDataUri = doc.output('datauristring');
-    uploadFileToDrive(pdfDataUri.split('base64,')[1], pdfFileName, 'application/pdf', 'pdf');
-
-    doc.save(pdfFileName);
-  });
-
-  // ---- shared "database": Google Sheets via Apps Script Web App ----
-  // Paste the deployed Web App URL here once the organizer sets it up (see apps_script_code.gs).
-  // Example: 'https://script.google.com/macros/s/AKfycb.../exec'
-  const GOOGLE_SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxYTTy69x-PWDVsRhanFqNzEz_LgQjPwmgyZqdwfS3TxnDcY3CjRNh3uQCfDzyoxb9UNg/exec';
-
-  const SUBMISSION_PREFIX = 'submission:';
-
-  function makeSubmissionId(){
-    if(window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
-    return Date.now() + '-' + Math.random().toString(36).slice(2, 9);
+    return doc;
   }
 
-  function storageAvailable(){
-    return !!(window.storage && typeof window.storage.list === 'function');
-  }
-
-  function sheetConfigured(){
-    return !!GOOGLE_SHEET_WEB_APP_URL;
-  }
-
-  // Fire-and-forget upload of a generated PNG/PDF straight to the organizer's
-  // Google Drive, via the same Apps Script Web App used for ratings.
-  async function uploadFileToDrive(base64, fileName, mimeType, fileType){
-    if(!sheetConfigured() || !base64) return;
-    try{
-      await fetch(GOOGLE_SHEET_WEB_APP_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'saveFile',
-          fileType: fileType,
-          fileName: fileName,
-          mimeType: mimeType,
-          base64: base64
-        })
-      });
-    }catch(err){
-      console.warn('Could not upload file to Google Drive:', err);
-    }
-  }
-
-  async function saveToSharedList(){
-    const btn = document.getElementById('cloudSaveBtn');
+  async function saveEntryAndReport(){
+    const btn = document.getElementById('saveAllBtn');
     const divisionName = (document.getElementById('lguName').value || '').trim();
+
     if(!divisionName){
       alert('Please enter the Name of Division/Group before saving.');
       return;
     }
-    if(!sheetConfigured() && !storageAvailable()){
-      alert('Saving is not yet configured for this copy of the tool. Ask the organizer to finish the Google Sheets setup.');
+    if(!sheetConfigured()){
+      alert('Saving is not yet configured for this copy of the tool. Ask the organizer to finish the Google setup.');
       return;
     }
-    const payload = {
-      lgu: divisionName,
-      savedAt: new Date().toISOString(),
-      ratings: state
-    };
+
     const originalLabel = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'Saving…';
+
     try{
-      if(sheetConfigured()){
-        // Plain-text content type avoids a CORS preflight that Apps Script doesn't handle.
-        await fetch(GOOGLE_SHEET_WEB_APP_URL, {
+      const doc = await buildFullReportPdf(divisionName);
+      const pdfFileName = toFileName(divisionName) + '_audit_report.pdf';
+      const pdfDataUri = doc.output('datauristring');
+      const pdfBase64 = pdfDataUri.split('base64,')[1];
+
+      const ratingsPayload = {
+        lgu: divisionName,
+        savedAt: new Date().toISOString(),
+        ratings: state
+      };
+
+      // Plain-text content type avoids a CORS preflight that Apps Script doesn't handle.
+      // mode:'no-cors' hides the response, so a fetch that doesn't throw is treated as sent.
+      const results = await Promise.allSettled([
+        fetch(GOOGLE_SHEET_WEB_APP_URL, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        // mode:'no-cors' hides the response, so we can't confirm server-side success —
-        // treat a fetch that didn't throw as a successful send.
-      } else {
-        const id = makeSubmissionId();
-        const result = await window.storage.set(SUBMISSION_PREFIX + id, JSON.stringify(payload), true);
-        if(!result) throw new Error('Storage did not confirm the save.');
+          body: JSON.stringify(ratingsPayload)
+        }),
+        fetch(GOOGLE_SHEET_WEB_APP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'saveFile',
+            fileType: 'pdf',
+            fileName: pdfFileName,
+            mimeType: 'application/pdf',
+            base64: pdfBase64
+          })
+        })
+      ]);
+
+      const failed = results.filter(r => r.status === 'rejected');
+      if(failed.length){
+        throw new Error('Network error while sending to Google (' + failed.length + ' of 2 requests failed).');
       }
+
+      // Also give the participant a local copy.
+      doc.save(pdfFileName);
+
       btn.textContent = 'Saved!';
     }catch(err){
       alert('Could not save this entry: ' + err.message);
       btn.textContent = originalLabel;
     }finally{
-      setTimeout(() => { btn.disabled = false; btn.textContent = originalLabel; }, 1200);
+      setTimeout(() => { btn.disabled = false; btn.textContent = originalLabel; }, 1500);
     }
   }
 
-  document.getElementById('cloudSaveBtn').addEventListener('click', saveToSharedList);
+  document.getElementById('saveAllBtn').addEventListener('click', saveEntryAndReport);
 
-  if(!sheetConfigured() && !storageAvailable()){
-    const cloudBtn = document.getElementById('cloudSaveBtn');
-    cloudBtn.title = 'Saving is not yet configured for this copy of the tool';
-    cloudBtn.style.opacity = '0.55';
+  if(!sheetConfigured()){
+    const saveBtn = document.getElementById('saveAllBtn');
+    saveBtn.title = 'Saving is not yet configured for this copy of the tool';
+    saveBtn.style.opacity = '0.55';
   }
 
   buildDiagram();
