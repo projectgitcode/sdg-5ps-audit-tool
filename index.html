@@ -4,38 +4,42 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SDG 5Ps Audit Tool</title>
+
 <style>
   :root{
-    --paper: #F6F4EC;
-    --paper-2: #EFECE0;
-    --ink: #1E2A22;
-    --ink-soft: #4B5A4F;
-    --forest: #1F5C3E;
-    --forest-deep: #123D28;
-    --line: #C9C3AE;
-    --green: #2E9E4F;
-    --green-ink: #ffffff;
-    --yellow: #F0BF2C;
-    --yellow-ink: #3a2e05;
-    --red: #DE4B45;
-    --red-ink: #ffffff;
-    --unrated: #DEDBCC;
-    --unrated-ink: #7a7562;
-    --radius: 10px;
+    --paper:#F6F4EC;
+    --paper-2:#EFECE0;
+    --ink:#1E2A22;
+    --ink-soft:#4B5A4F;
+    --forest:#1F5C3E;
+    --forest-deep:#123D28;
+    --line:#C9C3AE;
+    --green:#2E9E4F;
+    --green-ink:#fff;
+    --yellow:#F0BF2C;
+    --yellow-ink:#3a2e05;
+    --red:#DE4B45;
+    --red-ink:#fff;
+    --unrated:#DEDBCC;
+    --unrated-ink:#7a7562;
+    --radius:10px;
   }
-  *{ box-sizing:border-box; }
-  html,body{ margin:0; padding:0; }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
   body{
-    background: var(--paper);
-    color: var(--ink);
-    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     line-height:1.45;
   }
+
   .app{
     max-width:1240px;
     margin:0 auto;
     padding:28px 20px 60px;
   }
+
   header.top{
     display:flex;
     flex-wrap:wrap;
@@ -46,6 +50,7 @@
     padding-bottom:18px;
     margin-bottom:26px;
   }
+
   .brand-eyebrow{
     text-transform:uppercase;
     letter-spacing:.14em;
@@ -54,24 +59,28 @@
     color:var(--forest);
     margin:0 0 4px;
   }
+
   h1{
     font-size:26px;
     margin:0;
-    letter-spacing:-0.01em;
+    letter-spacing:-.01em;
     color:var(--forest-deep);
   }
+
   .subtitle{
     margin:6px 0 0;
     color:var(--ink-soft);
     font-size:14px;
     max-width:100ch;
   }
+
   .lgu-field{
     display:flex;
     flex-direction:column;
     gap:4px;
     min-width:260px;
   }
+
   .lgu-field label{
     font-size:11px;
     text-transform:uppercase;
@@ -79,6 +88,7 @@
     color:var(--ink-soft);
     font-weight:700;
   }
+
   .lgu-field input{
     font-size:15px;
     padding:9px 11px;
@@ -88,17 +98,53 @@
     color:var(--ink);
     font-family:inherit;
   }
-  .lgu-field input:focus{ outline:2px solid var(--forest); outline-offset:1px; }
 
-  @media (max-width:480px){
-    h1{ font-size:21px; }
-    .lgu-field{ min-width:0; width:100%; }
-    .app{ padding:18px 14px 44px; }
+  .lgu-field input:focus{
+    outline:2px solid var(--forest);
+    outline-offset:1px;
   }
+
+  .toolbar{
+    margin:4px 0 18px;
+    background:#fff;
+    border:1.5px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 20px;
+  }
+
+  .instructions{
+    font-size:13.5px;
+    color:var(--ink);
+  }
+
+  .instr-title{
+    font-weight:800;
+    font-size:15px;
+    margin:0 0 10px;
+    color:var(--forest-deep);
+  }
+
+  .instr-body{
+    margin:0 0 12px;
+    line-height:1.55;
+  }
+
+  .instr-body strong,
+  .instr-scale strong{color:var(--forest-deep)}
+
+  .instr-scale{
+    margin:0;
+    padding-left:20px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .instr-scale li{line-height:1.55}
 
   main.layout{
     display:grid;
-    grid-template-columns: 480px 1fr;
+    grid-template-columns:480px 1fr;
     gap:34px;
     align-items:start;
   }
@@ -111,7 +157,19 @@
     border-radius:var(--radius);
     padding:22px 20px 18px;
   }
-  .diagram-wrap{ width:100%; max-width:440px; margin:0 auto; }
+
+  .diagram-wrap{
+    width:100%;
+    max-width:440px;
+    margin:0 auto;
+  }
+
+  #diagramSvg{
+    display:block;
+    width:100%;
+    height:auto;
+  }
+
   .legend{
     display:flex;
     gap:16px;
@@ -119,27 +177,53 @@
     margin-top:14px;
     flex-wrap:wrap;
   }
+
   .legend-item{
-    display:flex; align-items:center; gap:7px;
-    font-size:12.5px; color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:12.5px;
+    color:var(--ink-soft);
   }
+
   .legend-swatch{
-    width:13px; height:13px; border-radius:3px; border:1px solid rgba(0,0,0,.15);
+    width:13px;
+    height:13px;
+    border-radius:3px;
+    border:1px solid rgba(0,0,0,.15);
   }
+
   .score-summary{
     margin-top:16px;
     border-top:1px solid var(--line);
     padding-top:14px;
   }
+
   .score-row{
-    display:flex; align-items:center; gap:10px;
-    font-size:12.5px; margin-bottom:7px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:12.5px;
+    margin-bottom:7px;
   }
-  .score-row .dim-name{ width:170px; flex-shrink:0; color:var(--ink-soft); font-weight:600;}
+
+  .score-row .dim-name{
+    width:170px;
+    flex-shrink:0;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+
   .score-bar{
-    flex:1; height:9px; border-radius:5px; overflow:hidden; display:flex; background:var(--unrated);
+    flex:1;
+    height:9px;
+    border-radius:5px;
+    overflow:hidden;
+    display:flex;
+    background:var(--unrated);
   }
-  .score-bar span{ height:100%; }
+
+  .score-bar span{height:100%}
 
   section.dimension{
     background:#fff;
@@ -148,21 +232,30 @@
     margin-bottom:18px;
     overflow:hidden;
   }
+
   .dim-header{
-    display:flex; align-items:center; gap:10px;
+    display:flex;
+    align-items:center;
+    gap:10px;
     padding:14px 18px;
     background:var(--forest-deep);
     color:#fff;
   }
+
   .dim-header .swatch{
-    width:10px; height:26px; border-radius:3px; flex-shrink:0;
+    width:10px;
+    height:26px;
+    border-radius:3px;
+    flex-shrink:0;
   }
+
   .dim-header h2{
     font-size:15.5px;
     margin:0;
     letter-spacing:.02em;
     text-transform:uppercase;
   }
+
   .dim-header .dim-side{
     margin-left:auto;
     font-size:11px;
@@ -170,27 +263,31 @@
     text-transform:uppercase;
     letter-spacing:.08em;
   }
+
   .question{
     padding:14px 18px;
     border-top:1px solid var(--paper-2);
     display:grid;
-    grid-template-columns: 1fr 156px;
+    grid-template-columns:1fr 156px;
     gap:16px;
     align-items:start;
   }
-  @media (max-width: 960px){
-    main.layout{ grid-template-columns: 1fr; }
-    .diagram-card{ position: static !important; top: auto; }
+
+  .q-text{font-size:14px}
+  .q-text .num{
+    font-weight:700;
+    color:var(--forest);
+    margin-right:6px;
   }
 
-  @media (max-width:640px){
-    .question{ grid-template-columns:1fr; }
-    .toggle{ height:44px; }
-    .toggle button{ font-size:15px; }
+  .q-text .tl{
+    display:block;
+    font-style:italic;
+    color:var(--ink-soft);
+    font-size:12.5px;
+    margin-top:4px;
   }
-  .q-text{ font-size:14px; }
-  .q-text .num{ font-weight:700; color:var(--forest); margin-right:6px; }
-  .q-text .tl{ display:block; font-style:italic; color:var(--ink-soft); font-size:12.5px; margin-top:4px; }
+
   .toggle{
     display:flex;
     border:1.5px solid var(--line);
@@ -198,6 +295,7 @@
     overflow:hidden;
     height:34px;
   }
+
   .toggle button{
     flex:1;
     border:none;
@@ -209,56 +307,24 @@
     font-family:inherit;
     border-left:1px solid var(--line);
   }
-  .toggle button:first-child{ border-left:none; }
-  .toggle button:hover{ background:var(--paper-2); }
-  .toggle button.sel-A{ background:var(--green); color:var(--green-ink); }
-  .toggle button.sel-B{ background:var(--yellow); color:var(--yellow-ink); }
-  .toggle button.sel-C{ background:var(--red); color:var(--red-ink); }
 
-  .toolbar{
-    margin:4px 0 18px;
-    background:#fff;
-    border:1.5px solid var(--line);
-    border-radius:var(--radius);
-    padding:18px 20px;
-  }
-  .instructions{
-    font-size:13.5px;
-    color:var(--ink);
-  }
-  .instr-title{
-    font-weight:800;
-    font-size:15px;
-    margin:0 0 10px;
-    color:var(--forest-deep);
-  }
-  .instr-body{
-    margin:0 0 12px;
-    color:var(--ink);
-    line-height:1.55;
-  }
-  .instr-body strong{ color:var(--forest-deep); }
-  .instr-scale{
-    margin:0;
-    padding-left:20px;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-  }
-  .instr-scale li{
-    line-height:1.55;
-  }
-  .instr-scale strong{ color:var(--forest-deep); }
+  .toggle button:first-child{border-left:none}
+  .toggle button:hover{background:var(--paper-2)}
+  .toggle button.sel-A{background:var(--green);color:var(--green-ink)}
+  .toggle button.sel-B{background:var(--yellow);color:var(--yellow-ink)}
+  .toggle button.sel-C{background:var(--red);color:var(--red-ink)}
+
   .toolbar-actions{
     display:flex;
-    justify-content: center;
-    align-items: center;
+    justify-content:center;
+    align-items:center;
     gap:8px;
     flex-wrap:wrap;
     margin-top:16px;
     padding-top:16px;
     border-top:1px solid var(--line);
   }
+
   .reset-btn{
     background:none;
     border:1.5px solid var(--forest);
@@ -270,12 +336,14 @@
     cursor:pointer;
     font-family:inherit;
   }
-  .reset-btn:hover{ background:var(--forest); color:#fff; }
+
+  .reset-btn:hover{background:var(--forest);color:#fff}
 
   .primary-btn{
     background:var(--forest);
     color:#fff;
   }
+
   .primary-btn:hover{
     background:var(--forest-deep);
     border-color:var(--forest-deep);
@@ -290,25 +358,59 @@
 
   footer.note{
     margin-top:26px;
-    text-align: center;
+    text-align:center;
     font-size:12px;
     color:var(--ink-soft);
     border-top:1px solid var(--line);
     padding-top:14px;
   }
+
+  /* During PNG capture, make the entire app a clean static document. */
+  .exporting .diagram-card{
+    position:static !important;
+    top:auto !important;
+  }
+
+  .exporting .toolbar-actions,
+  .exporting .shared-note{
+    /* Kept in the DOM for normal use, but excluded from the image by JS. */
+  }
+
+  @media(max-width:960px){
+    main.layout{grid-template-columns:1fr}
+    .diagram-card{position:static !important;top:auto}
+  }
+
+  @media(max-width:640px){
+    .question{grid-template-columns:1fr}
+    .toggle{height:44px}
+    .toggle button{font-size:15px}
+  }
+
+  @media(max-width:480px){
+    h1{font-size:21px}
+    .lgu-field{min-width:0;width:100%}
+    .app{padding:18px 14px 44px}
+  }
 </style>
 </head>
+
 <body>
-<div class="app">
+<div class="app" id="systemContainer">
 
   <header class="top">
     <div>
       <p class="brand-eyebrow">QC VLR Inception Workshop</p>
       <h1>SDG 5Ps Audit Tool</h1>
-      <p class="subtitle">The SDG 5Ps Audit Tool is a matrix designed to evaluate the velocity and direction of 
-        progress across the 2030 Agenda's core pillars in Quezon City. Tailored for the Voluntary Local Review (VLR) process, 
-        this matrix aids in measuring trajectory, identifying bottlenecks, and ensuring data-driven decision-making across all districts and local communities.</p>
+      <p class="subtitle">
+        The SDG 5Ps Audit Tool is a matrix designed to evaluate the velocity and direction of
+        progress across the 2030 Agenda's core pillars in Quezon City. Tailored for the
+        Voluntary Local Review (VLR) process, this matrix aids in measuring trajectory,
+        identifying bottlenecks, and ensuring data-driven decision-making across all districts
+        and local communities.
+      </p>
     </div>
+
     <div class="lgu-field">
       <label for="lguName">Name:</label>
       <input id="lguName" type="text" />
@@ -318,12 +420,19 @@
   <div class="toolbar">
     <div class="instructions">
       <p class="instr-title">Instructions</p>
-      <p class="instr-body">The Tool covers the <strong>five (5) pillars</strong> of Sustainable Development: <strong>People, Planet, Prosperity, Peace, and Partnerships.</strong> Each dimension contains <strong>five (5) benchmark criteria/considerations</strong> aligned with local implementation strategies. 
-        Participants will assess the trend/trajectory of each criterion over time within their barangay-/district-/city-level sector using this scale:</p>
+      <p class="instr-body">
+        The Tool covers the <strong>five (5) pillars</strong> of Sustainable Development:
+        <strong>People, Planet, Prosperity, Peace, and Partnerships.</strong>
+        Each dimension contains <strong>five (5) benchmark criteria/considerations</strong>
+        aligned with local implementation strategies. Participants will assess the
+        trend/trajectory of each criterion over time within their barangay-/district-/city-level
+        sector using this scale:
+      </p>
+
       <ul class="instr-scale">
-        <li><strong>A: Progressing</strong> — <strong>Measurable improvement</strong> is being made, initiatives are generating positive impact, and indicators are moving toward target completion</li>
-        <li><strong>B: Stagnating</strong> — <strong>Little to no measurable change from the baseline</strong>; initiatives are stalled, stuck in the pipeline, or failing to keep pace with growth</li>
-        <li><strong>C: Regressing</strong> — <strong>Conditions or indicators have deteriorated</strong> relative to previous baselines, requiring urgent policy intervention or reallocated funding</li>
+        <li><strong>A: Progressing</strong> — <strong>Measurable improvement</strong> is being made, initiatives are generating positive impact, and indicators are moving toward target completion.</li>
+        <li><strong>B: Stagnating</strong> — <strong>Little to no measurable change from the baseline</strong>; initiatives are stalled, stuck in the pipeline, or failing to keep pace with growth.</li>
+        <li><strong>C: Regressing</strong> — <strong>Conditions or indicators have deteriorated</strong> relative to previous baselines, requiring urgent policy intervention or reallocated funding.</li>
       </ul>
     </div>
   </div>
@@ -333,140 +442,211 @@
       <div class="diagram-wrap">
         <svg id="diagramSvg" viewBox="0 0 620 620" xmlns="http://www.w3.org/2000/svg"></svg>
       </div>
+
       <div class="legend">
-        <div class="legend-item"><span class="legend-swatch" style="background:var(--green)"></span>A &mdash; Progressing</div>
-        <div class="legend-item"><span class="legend-swatch" style="background:var(--yellow)"></span>B &mdash; Stagnating</div>
-        <div class="legend-item"><span class="legend-swatch" style="background:var(--red)"></span>C &mdash; Regressing</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:var(--green)"></span>A — Progressing</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:var(--yellow)"></span>B — Stagnating</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:var(--red)"></span>C — Regressing</div>
         <div class="legend-item"><span class="legend-swatch" style="background:var(--unrated)"></span>Unrated</div>
       </div>
+
       <div class="score-summary" id="scoreSummary"></div>
     </div>
 
     <div class="dimensions" id="dimensionsRoot"></div>
   </main>
 
-  <div class="toolbar-actions">
-    <button class="reset-btn primary-btn" id="saveAllBtn">Save Entry</button>
+  <div class="toolbar-actions" id="toolbarActions">
+    <button class="reset-btn primary-btn" id="saveAllBtn">Save PNG</button>
     <button class="reset-btn" id="resetBtn">Reset</button>
   </div>
-  <p class="shared-note">Note: The submitted report will be downloaded for your copy.</p>
+
+  <p class="shared-note" id="sharedNote">
+    Note: The submitted report will be saved as a PNG image of the complete system.
+  </p>
 
   <footer class="note">
-     Quezon City Planning and Development Department - Special Projects Division
+    Quezon City Planning and Development Department - Special Projects Division
   </footer>
+
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- PNG capture library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script>
 (function(){
 
-  const COLORS = { A: '#2E9E4F', B: '#F0BF2C', C: '#DE4B45', U: '#DEDBCC' };
+  const COLORS = {
+    A:'#2E9E4F',
+    B:'#F0BF2C',
+    C:'#DE4B45',
+    U:'#DEDBCC'
+  };
+
   const N_PILLARS = 5;
-  const SWATCHES = ['#7BB9A8', '#C9A15A', '#8FA6C9', '#A98FC9', '#8FBF7B'];
-  const LABELS = { A: 'Progressing', B: 'Stagnating', C: 'Regressing', U: 'Unrated' };
+
+  const SWATCHES = [
+    '#7BB9A8',
+    '#C9A15A',
+    '#8FA6C9',
+    '#A98FC9',
+    '#8FBF7B'
+  ];
+
+  const LABELS = {
+    A:'Progressing',
+    B:'Stagnating',
+    C:'Regressing',
+    U:'Unrated'
+  };
 
   const DIMENSIONS = [
     {
-      id: 'acc', label: 'PEOPLE', index: 0,
-      questions: [
-        { en: 'Expanding social protection coverage, reducing multi-dimensional poverty, and strengthening economic support systems for poor and vulnerable households.'},
-        { en: 'Ensuring equitable access to quality healthcare services, disease prevention, reproductive health, mental health support, and community wellness programs across all ages.'},
-        { en: 'Delivering accessible, inclusive, and equitable public education, early childhood care, technical- vocational training, and lifelong learning opportunities.'},
-        { en: 'Eliminating gender-based discrimination and violence, empowering women and girls, and ensuring gender-responsive local planning and leadership.'},
-        { en: 'Providing safe, affordable, and socialized housing, securing land tenure, preventing unjust displacement, and expanding access to basic utilities and safe social spaces.'}
+      id:'acc',
+      label:'PEOPLE',
+      index:0,
+      questions:[
+        {en:'Expanding social protection coverage, reducing multi-dimensional poverty, and strengthening economic support systems for poor and vulnerable households.'},
+        {en:'Ensuring equitable access to quality healthcare services, disease prevention, reproductive health, mental health support, and community wellness programs across all ages.'},
+        {en:'Delivering accessible, inclusive, and equitable public education, early childhood care, technical- vocational training, and lifelong learning opportunities.'},
+        {en:'Eliminating gender-based discrimination and violence, empowering women and girls, and ensuring gender-responsive local planning and leadership.'},
+        {en:'Providing safe, affordable, and socialized housing, securing land tenure, preventing unjust displacement, and expanding access to basic utilities and safe social spaces.'}
       ]
     },
     {
-      id: 'cea', label: 'PLANET', index: 1,
-      questions: [
-        { en: 'Local water conservation, expansion of clean water access, proper septage/wastewater management, and the protection and cleanup of local rivers, creeks, and urban waterways.'},
-        { en: 'Sustainable green building standards, expanding pedestrian pathways and active mobility networks, increasing accessible green parks, and developing disaster-resilient communities.' },
-        { en: 'Reducing single-use plastics, enforcing solid waste segregation and composting, and promoting waste reduction, recycling, and re-use practices across households and local businesses.' },
-        { en: 'Implementing local climate adaptation and mitigation plans, reducing carbon emissions, adopting renewable energy sources in public and residential spaces, and strengthening community disaster preparedness.' },
-        { en: 'Urban biodiversity preservation, expanding urban agriculture and community gardens, planting native trees, and protecting local natural open spaces and green corridors.' }
+      id:'cea',
+      label:'PLANET',
+      index:1,
+      questions:[
+        {en:'Local water conservation, expansion of clean water access, proper septage/wastewater management, and the protection and cleanup of local rivers, creeks, and urban waterways.'},
+        {en:'Sustainable green building standards, expanding pedestrian pathways and active mobility networks, increasing accessible green parks, and developing disaster-resilient communities.'},
+        {en:'Reducing single-use plastics, enforcing solid waste segregation and composting, and promoting waste reduction, recycling, and re-use practices across households and local businesses.'},
+        {en:'Implementing local climate adaptation and mitigation plans, reducing carbon emissions, adopting renewable energy sources in public and residential spaces, and strengthening community disaster preparedness.'},
+        {en:'Urban biodiversity preservation, expanding urban agriculture and community gardens, planting native trees, and protecting local natural open spaces and green corridors.'}
       ]
     },
     {
-      id: 'pss', label: 'PROSPERITY', index: 2,
-      questions: [
-        { en: 'Expanding local job opportunities, supporting micro, small, and medium enterprises (MSMEs), ensuring fair wages, and promoting safe, formal work conditions for all citizens.'},
-        { en: 'Expanding reliable, affordable, and clean energy access to power local businesses, public markets, commercial corridors, and community economic spaces.'},
-        { en: 'Building resilient physical infrastructure, expanding digital access and digital literacy, supporting local industries, and integrating technology into economic services.'},
-        { en: 'Fostering well-connected local commercial hubs, accessible public markets, active mobility options for workers and consumers, and sustainable urban economic spaces.'},
-        { en: 'Transitioning local enterprises toward sustainable practices, creating green jobs, and providing skills training aligned with emerging digital and sustainable economic sectors.'}
+      id:'pss',
+      label:'PROSPERITY',
+      index:2,
+      questions:[
+        {en:'Expanding local job opportunities, supporting micro, small, and medium enterprises (MSMEs), ensuring fair wages, and promoting safe, formal work conditions for all citizens.'},
+        {en:'Expanding reliable, affordable, and clean energy access to power local businesses, public markets, commercial corridors, and community economic spaces.'},
+        {en:'Building resilient physical infrastructure, expanding digital access and digital literacy, supporting local industries, and integrating technology into economic services.'},
+        {en:'Fostering well-connected local commercial hubs, accessible public markets, active mobility options for workers and consumers, and sustainable urban economic spaces.'},
+        {en:'Transitioning local enterprises toward sustainable practices, creating green jobs, and providing skills training aligned with emerging digital and sustainable economic sectors.'}
       ]
     },
     {
-      id: 'wr', label: 'PEACE', index: 3,
-      questions: [
-        { en: 'Reducing local crime, preventing violence in all forms, protecting vulnerable groups from abuse, and fostering safe, peaceful neighborhoods.'},
-        { en: 'Expanding fair, accessible, and timely justice mechanisms, including community-level dispute resolution systems and legal aid for underprivileged residents.'},
-        { en: 'Upholding high standards of public integrity, combating corruption, enforcing open-data transparency, and maintaining accountability in local governance.' },
-        { en: 'Fostering participatory decision-making processes, ensuring representation of civil society, marginalized groups, and citizens in local policy formulation.'},
-        { en: 'Safeguarding human rights, protecting fundamental freedoms, and ensuring universal legal identity rights (such as birth registration and civil status records) for all citizens.'}
+      id:'wr',
+      label:'PEACE',
+      index:3,
+      questions:[
+        {en:'Reducing local crime, preventing violence in all forms, protecting vulnerable groups from abuse, and fostering safe, peaceful neighborhoods.'},
+        {en:'Expanding fair, accessible, and timely justice mechanisms, including community-level dispute resolution systems and legal aid for underprivileged residents.'},
+        {en:'Upholding high standards of public integrity, combating corruption, enforcing open-data transparency, and maintaining accountability in local governance.'},
+        {en:'Fostering participatory decision-making processes, ensuring representation of civil society, marginalized groups, and citizens in local policy formulation.'},
+        {en:'Safeguarding human rights, protecting fundamental freedoms, and ensuring universal legal identity rights (such as birth registration and civil status records) for all citizens.'}
       ]
     },
     {
-      id: 'ntb', label: 'PARTNERSHIPS', index: 4,
-      questions: [
-        { en: 'Fostering strong local partnerships between the local government, private sector, non-government organizations, and civil society groups to drive sustainable development initiatives.'},
-        { en: 'Securing and effectively managing local, national, and international financial resources, grants, and investments to fund community-level development projects.'},
-        { en: 'Building local institutional capacities, sharing technological tools, and collaborating with academic and research institutions for local innovation and skill development.'},
-        { en: 'Aligning local, barangay, and city-wide development plans with national and global sustainability goals to ensure seamless implementation and policy integration.'},
-        { en: 'Building robust local data collection systems, enhancing statistical capacity, and enabling transparent, multi-sectoral monitoring and reporting of progress toward the SDGs and local development vision & goals.'}
+      id:'ntb',
+      label:'PARTNERSHIPS',
+      index:4,
+      questions:[
+        {en:'Fostering strong local partnerships between the local government, private sector, non-government organizations, and civil society groups to drive sustainable development initiatives.'},
+        {en:'Securing and effectively managing local, national, and international financial resources, grants, and investments to fund community-level development projects.'},
+        {en:'Building local institutional capacities, sharing technological tools, and collaborating with academic and research institutions for local innovation and skill development.'},
+        {en:'Aligning local, barangay, and city-wide development plans with national and global sustainability goals to ensure seamless implementation and policy integration.'},
+        {en:'Building robust local data collection systems, enhancing statistical capacity, and enabling transparent, multi-sectoral monitoring and reporting of progress toward the SDGs and local development vision & goals.'}
       ]
     }
   ];
 
-  // ---- state ----
   const state = {};
-  DIMENSIONS.forEach(d => { state[d.id] = new Array(5).fill(null); });
+  DIMENSIONS.forEach(d => {
+    state[d.id] = new Array(5).fill(null);
+  });
 
-  // ---- SVG geometry: N points evenly spaced around a center, wedges + rings ----
-  const CENTER = [310, 310];
-  const R = 190;        // radius to each pillar vertex
-  const LABEL_R = 255;  // radius for dimension labels
+  /* ---------- SVG DIAGRAM ---------- */
 
-  function toRad(deg){ return deg * Math.PI / 180; }
+  const CENTER = [310,310];
+  const R = 190;
+  const LABEL_R = 255;
+
+  function toRad(deg){
+    return deg * Math.PI / 180;
+  }
+
   function vertexPoint(i){
     const angle = toRad(-90 + i * (360 / N_PILLARS));
-    return [ CENTER[0] + R * Math.cos(angle), CENTER[1] + R * Math.sin(angle) ];
+    return [
+      CENTER[0] + R * Math.cos(angle),
+      CENTER[1] + R * Math.sin(angle)
+    ];
   }
-  const VERTS = Array.from({length: N_PILLARS}, (_, i) => vertexPoint(i));
 
-  function lerpPoint(from, to, t){
-    return [ from[0] + (to[0]-from[0])*t, from[1] + (to[1]-from[1])*t ];
+  const VERTS = Array.from(
+    {length:N_PILLARS},
+    (_,i) => vertexPoint(i)
+  );
+
+  function lerpPoint(from,to,t){
+    return [
+      from[0] + (to[0]-from[0])*t,
+      from[1] + (to[1]-from[1])*t
+    ];
   }
+
   function pointsToStr(pts){
-    return pts.map(p => p[0].toFixed(2)+','+p[1].toFixed(2)).join(' ');
+    return pts
+      .map(p => p[0].toFixed(2)+','+p[1].toFixed(2))
+      .join(' ');
   }
 
-  function ringPolygon(pA, pB, k){
-    // k = 1 (outer) .. 5 (inner, touches center)
+  function ringPolygon(pA,pB,k){
     const so = (6-k)/5;
     const si = (5-k)/5;
-    const p1 = lerpPoint(CENTER, pA, si);
-    const p2 = lerpPoint(CENTER, pA, so);
-    const p3 = lerpPoint(CENTER, pB, so);
-    const p4 = lerpPoint(CENTER, pB, si);
+
+    const p1 = lerpPoint(CENTER,pA,si);
+    const p2 = lerpPoint(CENTER,pA,so);
+    const p3 = lerpPoint(CENTER,pB,so);
+    const p4 = lerpPoint(CENTER,pB,si);
+
     return [p1,p2,p3,p4];
   }
 
-  function ringNumberPos(pA, pB, k){
-    const so = (6-k)/5, si = (5-k)/5;
+  function ringNumberPos(pA,pB,k){
+    const so = (6-k)/5;
+    const si = (5-k)/5;
     const t = (so+si)/2;
-    const mid = lerpPoint(pA, pB, 0.5);
-    return lerpPoint(CENTER, mid, t);
+    const mid = lerpPoint(pA,pB,.5);
+
+    return lerpPoint(CENTER,mid,t);
   }
 
   function labelPos(dimIndex){
-    const angle = toRad(-90 + (dimIndex + 0.5) * (360 / N_PILLARS));
-    return [ CENTER[0] + LABEL_R * Math.cos(angle), CENTER[1] + LABEL_R * Math.sin(angle) ];
+    const angle = toRad(
+      -90 + (dimIndex + .5) * (360 / N_PILLARS)
+    );
+
+    return [
+      CENTER[0] + LABEL_R * Math.cos(angle),
+      CENTER[1] + LABEL_R * Math.sin(angle)
+    ];
   }
 
-  function svgEl(name, attrs){
-    const el = document.createElementNS('http://www.w3.org/2000/svg', name);
-    for(const k in attrs) el.setAttribute(k, attrs[k]);
+  function svgEl(name,attrs){
+    const el = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      name
+    );
+
+    for(const k in attrs){
+      el.setAttribute(k,attrs[k]);
+    }
+
     return el;
   }
 
@@ -475,136 +655,235 @@
   function buildDiagram(){
     svg.innerHTML = '';
 
-    // background pentagon (unrated)
-    svg.appendChild(svgEl('polygon', { points: pointsToStr(VERTS), fill: COLORS.U }));
+    svg.appendChild(
+      svgEl('polygon',{
+        points:pointsToStr(VERTS),
+        fill:COLORS.U
+      })
+    );
 
-    // ring polygons for each dimension/pillar
     DIMENSIONS.forEach(dim => {
+
       const pA = VERTS[dim.index];
-      const pB = VERTS[(dim.index+1) % N_PILLARS];
+      const pB = VERTS[(dim.index+1)%N_PILLARS];
+
       for(let k=1;k<=5;k++){
-        const pts = ringPolygon(pA, pB, k);
-        const poly = svgEl('polygon', {
-          points: pointsToStr(pts),
-          fill: COLORS.U,
-          stroke: '#ffffff',
-          'stroke-width': 1.5,
-          id: 'poly-'+dim.id+'-'+k
+
+        const pts = ringPolygon(pA,pB,k);
+
+        const poly = svgEl('polygon',{
+          points:pointsToStr(pts),
+          fill:COLORS.U,
+          stroke:'#ffffff',
+          'stroke-width':1.5,
+          id:'poly-'+dim.id+'-'+k
         });
+
         svg.appendChild(poly);
       }
     });
 
-    // ring numbers
     DIMENSIONS.forEach(dim => {
+
       const pA = VERTS[dim.index];
-      const pB = VERTS[(dim.index+1) % N_PILLARS];
+      const pB = VERTS[(dim.index+1)%N_PILLARS];
+
       for(let k=1;k<=5;k++){
-        const p = ringNumberPos(pA, pB, k);
-        const t = svgEl('text', {
-          x:p[0], y:p[1]+4, 'text-anchor':'middle',
-          'font-size':'12', 'font-weight':'700', fill:'#1E2A22', 'font-family':'inherit'
+
+        const p = ringNumberPos(pA,pB,k);
+
+        const t = svgEl('text',{
+          x:p[0],
+          y:p[1]+4,
+          'text-anchor':'middle',
+          'font-size':'12',
+          'font-weight':'700',
+          fill:'#1E2A22',
+          'font-family':'Arial, sans-serif'
         });
+
         t.textContent = k;
         svg.appendChild(t);
       }
     });
 
-    // spokes from center to each vertex
     VERTS.forEach(v => {
-      svg.appendChild(svgEl('line', {
-        x1: CENTER[0], y1: CENTER[1], x2: v[0], y2: v[1],
-        stroke:'#111', 'stroke-width':4
-      }));
+
+      svg.appendChild(
+        svgEl('line',{
+          x1:CENTER[0],
+          y1:CENTER[1],
+          x2:v[0],
+          y2:v[1],
+          stroke:'#111',
+          'stroke-width':4
+        })
+      );
     });
 
-    // outer pentagon border
-    svg.appendChild(svgEl('polygon', {
-      points: pointsToStr(VERTS), fill:'none', stroke:'#111', 'stroke-width':5
-    }));
+    svg.appendChild(
+      svgEl('polygon',{
+        points:pointsToStr(VERTS),
+        fill:'none',
+        stroke:'#111',
+        'stroke-width':5
+      })
+    );
 
-    // dimension labels around the outside
     DIMENSIONS.forEach(dim => {
+
       const p = labelPos(dim.index);
-      const t = svgEl('text', {
-        x:p[0], y:p[1], 'text-anchor':'middle',
-        'font-size':'13', 'font-weight':'800', fill:'#123D28',
-        'letter-spacing':'0.02em'
+
+      const t = svgEl('text',{
+        x:p[0],
+        y:p[1],
+        'text-anchor':'middle',
+        'font-size':'13',
+        'font-weight':'800',
+        fill:'#123D28',
+        'letter-spacing':'.02em',
+        'font-family':'Arial, sans-serif'
       });
+
       const words = dim.label.toUpperCase().split(' ');
-      words.forEach((w, i) => {
-        const tspan = svgEl('tspan', { x:p[0], dy: i===0 ? 0 : 14 });
+
+      words.forEach((w,i) => {
+
+        const tspan = svgEl('tspan',{
+          x:p[0],
+          dy:i===0 ? 0 : 14
+        });
+
         tspan.textContent = w;
         t.appendChild(tspan);
       });
+
       svg.appendChild(t);
     });
   }
 
   function updateDiagram(){
+
     DIMENSIONS.forEach(dim => {
+
       for(let k=1;k<=5;k++){
+
         const val = state[dim.id][k-1];
         const color = val ? COLORS[val] : COLORS.U;
-        const poly = document.getElementById('poly-'+dim.id+'-'+k);
-        if(poly) poly.setAttribute('fill', color);
+
+        const poly = document.getElementById(
+          'poly-'+dim.id+'-'+k
+        );
+
+        if(poly){
+          poly.setAttribute('fill',color);
+        }
       }
     });
+
     updateScoreSummary();
   }
 
   function updateScoreSummary(){
+
     const root = document.getElementById('scoreSummary');
     root.innerHTML = '';
+
     DIMENSIONS.forEach(dim => {
-      const counts = { A:0, B:0, C:0, U:0 };
-      state[dim.id].forEach(v => { counts[v||'U']++; });
+
+      const counts = {A:0,B:0,C:0,U:0};
+
+      state[dim.id].forEach(v => {
+        counts[v || 'U']++;
+      });
+
       const row = document.createElement('div');
       row.className = 'score-row';
-      const bar = ['A','B','C','U'].map(k => counts[k] ? '<span style="width:'+(counts[k]/5*100)+'%;background:'+COLORS[k]+'"></span>' : '').join('');
-      row.innerHTML = '<span class="dim-name">'+dim.label+'</span><div class="score-bar">'+bar+'</div>';
+
+      const bar = ['A','B','C','U']
+        .map(k => counts[k]
+          ? '<span style="width:'+(counts[k]/5*100)+'%;background:'+COLORS[k]+'"></span>'
+          : ''
+        )
+        .join('');
+
+      row.innerHTML =
+        '<span class="dim-name">'+dim.label+'</span>' +
+        '<div class="score-bar">'+bar+'</div>';
+
       root.appendChild(row);
     });
   }
 
-  // ---- controls ----
-  const dimensionsRoot = document.getElementById('dimensionsRoot');
+  /* ---------- CONTROLS ---------- */
+
+  const dimensionsRoot =
+    document.getElementById('dimensionsRoot');
 
   function buildControls(){
+
     dimensionsRoot.innerHTML = '';
-    DIMENSIONS.forEach((dim, dimIdx) => {
+
+    DIMENSIONS.forEach((dim,dimIdx) => {
+
       const section = document.createElement('section');
       section.className = 'dimension';
 
       const header = document.createElement('div');
       header.className = 'dim-header';
-      header.innerHTML = '<span class="swatch" style="background:'+SWATCHES[dimIdx % SWATCHES.length]+'"></span>' +
-        '<h2>'+dim.label+'</h2><span class="dim-side">Pillar '+(dimIdx+1)+' of '+DIMENSIONS.length+'</span>';
+
+      header.innerHTML =
+        '<span class="swatch" style="background:'+
+        SWATCHES[dimIdx % SWATCHES.length]+'"></span>' +
+        '<h2>'+dim.label+'</h2>' +
+        '<span class="dim-side">Pillar '+
+        (dimIdx+1)+' of '+DIMENSIONS.length+
+        '</span>';
+
       section.appendChild(header);
 
-      dim.questions.forEach((q, idx) => {
+      dim.questions.forEach((q,idx) => {
+
         const row = document.createElement('div');
         row.className = 'question';
 
         const qText = document.createElement('div');
         qText.className = 'q-text';
-        qText.innerHTML = '<span class="num">'+(idx+1)+'.</span>' + escapeHtml(q.en) +
-          '<span class="tl">'+escapeHtml(q.tl)+'</span>';
+
+        qText.innerHTML =
+          '<span class="num">'+(idx+1)+'.</span>' +
+          escapeHtml(q.en) +
+          (q.tl ? '<span class="tl">'+escapeHtml(q.tl)+'</span>' : '');
+
         row.appendChild(qText);
 
         const toggle = document.createElement('div');
         toggle.className = 'toggle';
+
         ['A','B','C'].forEach(letter => {
+
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.textContent = letter;
-          btn.addEventListener('click', () => {
-            state[dim.id][idx] = (state[dim.id][idx] === letter) ? null : letter;
-            refreshToggle(toggle, state[dim.id][idx]);
+
+          btn.addEventListener('click',() => {
+
+            state[dim.id][idx] =
+              state[dim.id][idx] === letter
+                ? null
+                : letter;
+
+            refreshToggle(
+              toggle,
+              state[dim.id][idx]
+            );
+
             updateDiagram();
           });
+
           toggle.appendChild(btn);
         });
+
         row.appendChild(toggle);
         section.appendChild(row);
       });
@@ -613,243 +892,328 @@
     });
   }
 
-  function refreshToggle(toggleEl, selected){
+  function refreshToggle(toggleEl,selected){
+
     Array.from(toggleEl.children).forEach(btn => {
+
       btn.className = '';
-      if(btn.textContent === selected) btn.className = 'sel-'+selected;
+
+      if(btn.textContent === selected){
+        btn.className = 'sel-'+selected;
+      }
     });
   }
 
   function escapeHtml(str){
+
     const div = document.createElement('div');
-    div.textContent = str;
+    div.textContent = str || '';
+
     return div.innerHTML;
   }
 
-  function slugify(str){
-    return (str||'audit').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || 'audit';
-  }
-
-  // Keeps the typed division/group name readable in the downloaded filename
-  // (preserves case and spacing as underscores) instead of collapsing it to a slug.
   function toFileName(str){
-    const cleaned = (str||'').trim().replace(/[\\/:*?"<>|]+/g,'').replace(/\s+/g,'_');
+
+    const cleaned = (str || '')
+      .trim()
+      .replace(/[\\/:*?"<>|]+/g,'')
+      .replace(/\s+/g,'_');
+
     return cleaned || 'audit';
   }
 
-  document.getElementById('resetBtn').addEventListener('click', () => {
-    DIMENSIONS.forEach(d => { state[d.id] = new Array(5).fill(null); });
-    document.querySelectorAll('.toggle').forEach(t => refreshToggle(t, null));
-    updateDiagram();
-  });
+  /* ---------- RESET ---------- */
 
-  // ---- Google Apps Script Web App: single endpoint for both
-  // (1) appending ratings to the "Submissions" sheet, and
-  // (2) uploading the generated PDF report into Google Drive.
-  // See apps_script_code.gs for the backend script + deployment steps.
-  const GOOGLE_SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxYTTy69x-PWDVsRhanFqNzEz_LgQjPwmgyZqdwfS3TxnDcY3CjRNh3uQCfDzyoxb9UNg/exec';
+  document.getElementById('resetBtn')
+    .addEventListener('click',() => {
+
+      DIMENSIONS.forEach(d => {
+        state[d.id] = new Array(5).fill(null);
+      });
+
+      document.querySelectorAll('.toggle')
+        .forEach(t => refreshToggle(t,null));
+
+      updateDiagram();
+    });
+
+  /* ---------- GOOGLE APPS SCRIPT ---------- */
+
+  const GOOGLE_SHEET_WEB_APP_URL =
+    'https://script.google.com/macros/s/AKfycbxYTTy69x-PWDVsRhanFqNzEz_LgQjPwmgyZqdwfS3TxnDcY3CjRNh3uQCfDzyoxb9UNg/exec';
 
   function sheetConfigured(){
     return !!GOOGLE_SHEET_WEB_APP_URL;
   }
 
-  // Renders the pentagon diagram (as currently shown on screen) to an
-  // offscreen canvas and resolves with that canvas, for embedding into the PDF.
-  function renderDiagramCanvas(){
-    return new Promise((resolve, reject) => {
-      const svgData = new XMLSerializer().serializeToString(svg);
-      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(svgBlob);
-      const img = new Image();
-      img.onload = () => {
-        const scale = 2;
-        const canvas = document.createElement('canvas');
-        canvas.width = 620 * scale;
-        canvas.height = 620 * scale;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        URL.revokeObjectURL(url);
-        resolve(canvas);
-      };
-      img.onerror = reject;
-      img.src = url;
-    });
-  }
+  /* ---------- PNG CAPTURE ---------- */
 
-  // Builds the full PDF (title, diagram image, then every pillar's questions
-  // with their A/B/C rating chip) and returns the jsPDF document instance.
-  async function buildFullReportPdf(divisionName){
-    const diagramCanvas = await renderDiagramCanvas();
+  async function renderFullSystemCanvas(){
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-    const pageW = doc.internal.pageSize.getWidth();
-    const pageH = doc.internal.pageSize.getHeight();
-    const marginX = 48;
-    let y = 56;
-
-    function ensureSpace(needed){
-      if(y + needed > pageH - 48){
-        doc.addPage();
-        y = 56;
-      }
+    if(typeof html2canvas !== 'function'){
+      throw new Error(
+        'PNG capture library did not load. Please check your internet connection and reload the page.'
+      );
     }
 
-    // Title
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.setTextColor(18, 61, 40);
-    doc.text('SDG 5Ps Audit Tool — Report', marginX, y);
-    y += 20;
+    const container =
+      document.getElementById('systemContainer');
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(11);
-    doc.setTextColor(75, 90, 79);
-    doc.text('Division/Group: ' + (divisionName || '(not specified)'), marginX, y);
-    y += 14;
-    doc.text('Generated: ' + new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' }), marginX, y);
-    y += 20;
+    const toolbar =
+      document.getElementById('toolbarActions');
 
-    // Diagram image
-    const availW = pageW - marginX * 2;
-    const diagramDisplayW = Math.min(availW, 300);
-    const diagramDisplayH = diagramDisplayW * (diagramCanvas.height / diagramCanvas.width);
-    const diagramX = marginX + (availW - diagramDisplayW) / 2;
-    ensureSpace(diagramDisplayH + 12);
-    doc.addImage(diagramCanvas.toDataURL('image/png'), 'PNG', diagramX, y, diagramDisplayW, diagramDisplayH);
-    y += diagramDisplayH + 20;
+    const note =
+      document.getElementById('sharedNote');
 
-    const rgb = {
-      A: [46, 158, 79],
-      B: [240, 191, 44],
-      C: [222, 75, 69],
-      U: [222, 219, 204]
-    };
+    document.body.classList.add('exporting');
 
-    DIMENSIONS.forEach((dim, dimIdx) => {
-      ensureSpace(40);
-      // Pillar header band
-      doc.setFillColor(18, 61, 40);
-      doc.rect(marginX, y, pageW - marginX*2, 22, 'F');
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(11);
-      doc.setTextColor(255,255,255);
-      doc.text('PILLAR ' + (dimIdx+1) + ' — ' + dim.label, marginX + 8, y + 15);
-      y += 22 + 10;
+    /*
+      Clone the complete system into a temporary off-screen
+      container. This prevents the capture from being affected
+      by sticky positioning or the current scroll position.
+    */
+    const clone = container.cloneNode(true);
 
-      dim.questions.forEach((q, idx) => {
-        const rating = state[dim.id][idx] || 'U';
-        const label = LABELS[rating];
-        const col = rgb[rating];
+    clone.id = 'pngExportClone';
 
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(9.5);
-        doc.setTextColor(30, 42, 34);
-        const textWidth = pageW - marginX*2 - 90;
-        const lines = doc.splitTextToSize((idx+1) + '. ' + q.en, textWidth);
-        const blockHeight = Math.max(lines.length * 12, 16) + 8;
+    const cloneToolbar =
+      clone.querySelector('#toolbarActions');
 
-        ensureSpace(blockHeight);
+    const cloneNote =
+      clone.querySelector('#sharedNote');
 
-        doc.text(lines, marginX, y + 10);
+    if(cloneToolbar){
+      cloneToolbar.remove();
+    }
 
-        // rating chip
-        doc.setFillColor(col[0], col[1], col[2]);
-        const chipW = 78;
-        const chipX = marginX + textWidth + 12;
-        doc.roundedRect(chipX, y, chipW, 16, 3, 3, 'F');
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(8.5);
-        doc.setTextColor(rating === 'B' ? 58 : 255, rating === 'B' ? 46 : 255, rating === 'B' ? 5 : 255);
-        doc.text(rating + ' — ' + label, chipX + chipW/2, y + 11, { align: 'center' });
+    if(cloneNote){
+      cloneNote.remove();
+    }
 
-        y += blockHeight + 4;
+    const cloneButtons =
+      clone.querySelectorAll('button');
+
+    cloneButtons.forEach(btn => {
+      btn.style.pointerEvents = 'none';
+    });
+
+    /*
+      Make the clone wide enough to preserve the desktop layout
+      when the user is viewing the tool on a smaller screen.
+    */
+    clone.style.width = Math.max(
+      container.scrollWidth,
+      1240
+    ) + 'px';
+
+    clone.style.maxWidth = '1240px';
+    clone.style.margin = '0';
+    clone.style.position = 'absolute';
+    clone.style.left = '-100000px';
+    clone.style.top = '0';
+    clone.style.background = getComputedStyle(container).backgroundColor;
+
+    document.body.appendChild(clone);
+
+    /*
+      Copy the current input value because cloneNode does not
+      reliably copy the live value of form controls.
+    */
+    const originalInput =
+      document.getElementById('lguName');
+
+    const clonedInput =
+      clone.querySelector('#lguName');
+
+    if(originalInput && clonedInput){
+      clonedInput.value = originalInput.value;
+    }
+
+    /*
+      Keep the SVG exactly as it currently appears.
+      html2canvas handles the inline SVG used by this tool.
+    */
+    await new Promise(resolve => requestAnimationFrame(resolve));
+
+    try{
+
+      const canvas = await html2canvas(clone,{
+        backgroundColor:'#F6F4EC',
+        scale:2,
+        useCORS:true,
+        allowTaint:false,
+        logging:false,
+        imageTimeout:15000,
+        scrollX:0,
+        scrollY:0,
+        windowWidth:clone.scrollWidth,
+        windowHeight:clone.scrollHeight
       });
 
-      y += 8;
-    });
+      return canvas;
 
-    return doc;
+    }finally{
+
+      clone.remove();
+      document.body.classList.remove('exporting');
+    }
   }
 
+  /* ---------- SAVE ENTRY AS PNG ---------- */
+
   async function saveEntryAndReport(){
-    const btn = document.getElementById('saveAllBtn');
-    const divisionName = (document.getElementById('lguName').value || '').trim();
+
+    const btn =
+      document.getElementById('saveAllBtn');
+
+    const divisionName =
+      (document.getElementById('lguName').value || '').trim();
 
     if(!divisionName){
-      alert('Please enter the Name of Division/Group before saving.');
-      return;
-    }
-    if(!sheetConfigured()){
-      alert('Saving is not yet configured for this copy of the tool. Ask the organizer to finish the Google setup.');
+
+      alert(
+        'Please enter the Name of Division/Group before saving.'
+      );
+
       return;
     }
 
     const originalLabel = btn.textContent;
+
     btn.disabled = true;
     btn.textContent = 'Saving…';
 
     try{
-      const doc = await buildFullReportPdf(divisionName);
-      const pdfFileName = toFileName(divisionName) + '_audit_report.pdf';
-      const pdfDataUri = doc.output('datauristring');
-      const pdfBase64 = pdfDataUri.split('base64,')[1];
+
+      /*
+        1. Render the complete system as PNG.
+        2. Download a local copy.
+        3. Save the ratings to Google Sheets.
+        4. Upload the PNG to Google Drive through Apps Script.
+      */
+
+      const canvas =
+        await renderFullSystemCanvas();
+
+      const pngDataUrl =
+        canvas.toDataURL('image/png');
+
+      const pngBase64 =
+        pngDataUrl.split('base64,')[1];
+
+      const pngFileName =
+        toFileName(divisionName) +
+        '_SDG_5Ps_Audit.png';
 
       const ratingsPayload = {
-        lgu: divisionName,
-        savedAt: new Date().toISOString(),
-        ratings: state
+        lgu:divisionName,
+        savedAt:new Date().toISOString(),
+        ratings:state
       };
 
-      // Plain-text content type avoids a CORS preflight that Apps Script doesn't handle.
-      // mode:'no-cors' hides the response, so a fetch that doesn't throw is treated as sent.
-      const results = await Promise.allSettled([
-        fetch(GOOGLE_SHEET_WEB_APP_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(ratingsPayload)
-        }),
-        fetch(GOOGLE_SHEET_WEB_APP_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'saveFile',
-            fileType: 'pdf',
-            fileName: pdfFileName,
-            mimeType: 'application/pdf',
-            base64: pdfBase64
-          })
-        })
-      ]);
+      /*
+        Save ratings + PNG to the existing Apps Script endpoint.
+        The endpoint must accept:
+          action: "saveFile"
+          mimeType: "image/png"
+          fileType: "png"
+      */
+      if(sheetConfigured()){
 
-      const failed = results.filter(r => r.status === 'rejected');
-      if(failed.length){
-        throw new Error('Network error while sending to Google (' + failed.length + ' of 2 requests failed).');
+        const results =
+          await Promise.allSettled([
+
+            fetch(GOOGLE_SHEET_WEB_APP_URL,{
+              method:'POST',
+              mode:'no-cors',
+              headers:{
+                'Content-Type':
+                  'text/plain;charset=utf-8'
+              },
+              body:JSON.stringify(ratingsPayload)
+            }),
+
+            fetch(GOOGLE_SHEET_WEB_APP_URL,{
+              method:'POST',
+              mode:'no-cors',
+              headers:{
+                'Content-Type':
+                  'text/plain;charset=utf-8'
+              },
+              body:JSON.stringify({
+                action:'saveFile',
+                fileType:'png',
+                fileName:pngFileName,
+                mimeType:'image/png',
+                base64:pngBase64
+              })
+            })
+          ]);
+
+        const failed =
+          results.filter(r => r.status === 'rejected');
+
+        if(failed.length){
+          throw new Error(
+            'Network error while sending the entry to Google.'
+          );
+        }
       }
 
-      // Also give the participant a local copy.
-      doc.save(pdfFileName);
+      /*
+        Always give the user a local PNG copy,
+        even if Google saving is not configured.
+      */
+      const link =
+        document.createElement('a');
+
+      link.download = pngFileName;
+      link.href = pngDataUrl;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
 
       btn.textContent = 'Saved!';
+
     }catch(err){
-      alert('Could not save this entry: ' + err.message);
+
+      console.error(err);
+
+      alert(
+        'Could not save this entry: ' +
+        (err && err.message
+          ? err.message
+          : 'Unknown error.')
+      );
+
       btn.textContent = originalLabel;
+
     }finally{
-      setTimeout(() => { btn.disabled = false; btn.textContent = originalLabel; }, 1500);
+
+      setTimeout(() => {
+
+        btn.disabled = false;
+        btn.textContent = originalLabel;
+
+      },1500);
     }
   }
 
-  document.getElementById('saveAllBtn').addEventListener('click', saveEntryAndReport);
+  document.getElementById('saveAllBtn')
+    .addEventListener('click',saveEntryAndReport);
 
   if(!sheetConfigured()){
-    const saveBtn = document.getElementById('saveAllBtn');
-    saveBtn.title = 'Saving is not yet configured for this copy of the tool';
-    saveBtn.style.opacity = '0.55';
+
+    const saveBtn =
+      document.getElementById('saveAllBtn');
+
+    saveBtn.title =
+      'Local PNG saving is available; Google saving is not configured.';
+
   }
+
+  /* ---------- INIT ---------- */
 
   buildDiagram();
   buildControls();
@@ -857,5 +1221,6 @@
 
 })();
 </script>
+
 </body>
 </html>
