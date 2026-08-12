@@ -1192,18 +1192,9 @@
       }
 
       /*
-        Always give the user a local PNG copy,
-        even if Google saving is not configured.
+        The PNG is already uploaded to Google Drive and the ratings are
+        already saved to the Google Sheet above — no local download needed.
       */
-      const link =
-        document.createElement('a');
-
-      link.download = pngFileName;
-      link.href = pngDataUrl;
-
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
 
       btn.textContent = 'Saved!';
 
