@@ -89,7 +89,8 @@
     font-weight:700;
   }
 
-  .lgu-field input{
+  .lgu-field input,
+  .lgu-field select{
     font-size:15px;
     padding:9px 11px;
     border:1.5px solid var(--line);
@@ -99,7 +100,13 @@
     font-family:inherit;
   }
 
-  .lgu-field input:focus{
+  .lgu-field select{
+    margin-bottom:10px;
+    cursor:pointer;
+  }
+
+  .lgu-field input:focus,
+  .lgu-field select:focus{
     outline:2px solid var(--forest);
     outline-offset:1px;
   }
@@ -412,6 +419,15 @@
     </div>
 
     <div class="lgu-field">
+      <label for="pillarSelect">Pillar:</label>
+      <select id="pillarSelect">
+        <option value="">Select a pillar…</option>
+        <option value="People">People</option>
+        <option value="Planet">Planet</option>
+        <option value="Prosperity">Prosperity</option>
+        <option value="Peace">Peace and Partnership</option>
+      </select>
+
       <label for="lguName">Name:</label>
       <input id="lguName" type="text" />
     </div>
@@ -1029,6 +1045,16 @@
       clonedInput.value = originalInput.value;
     }
 
+    const originalSelect =
+      document.getElementById('pillarSelect');
+
+    const clonedSelect =
+      clone.querySelector('#pillarSelect');
+
+    if(originalSelect && clonedSelect){
+      clonedSelect.value = originalSelect.value;
+    }
+
     /*
       Keep the SVG exactly as it currently appears.
       html2canvas handles the inline SVG used by this tool.
@@ -1069,6 +1095,9 @@
     const divisionName =
       (document.getElementById('lguName').value || '').trim();
 
+    const pillarValue =
+      (document.getElementById('pillarSelect').value || '').trim();
+
     if(!divisionName){
 
       alert(
@@ -1107,6 +1136,7 @@
 
       const ratingsPayload = {
         lgu:divisionName,
+        pillar:pillarValue,
         savedAt:new Date().toISOString(),
         ratings:state
       };
@@ -1210,7 +1240,6 @@
 
     saveBtn.title =
       'Local PNG saving is available; Google saving is not configured.';
-
   }
 
   /* ---------- INIT ---------- */
