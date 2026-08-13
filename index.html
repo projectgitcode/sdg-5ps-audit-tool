@@ -372,6 +372,93 @@
     padding-top:14px;
   }
 
+  /* ---------- SAVE STATUS MODAL ---------- */
+
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(18,61,40,.5);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+    padding:20px;
+  }
+
+  .modal-overlay[hidden]{display:none}
+
+  .modal-box{
+    background:#fff;
+    border-radius:14px;
+    padding:30px 26px 24px;
+    max-width:360px;
+    width:100%;
+    text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,.28);
+  }
+
+  .modal-icon{
+    width:54px;
+    height:54px;
+    border-radius:50%;
+    margin:0 auto 16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    font-weight:800;
+  }
+
+  .modal-icon.loading{
+    background:var(--paper-2);
+    color:var(--forest);
+  }
+
+  .modal-icon .spinner{
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    border:3px solid var(--line);
+    border-top-color:var(--forest);
+    animation:modalspin .8s linear infinite;
+  }
+
+  @keyframes modalspin{
+    to{transform:rotate(360deg)}
+  }
+
+  .modal-icon.success{
+    background:#DFF3E4;
+    color:var(--green);
+  }
+
+  .modal-icon.error{
+    background:#FBE1DF;
+    color:var(--red);
+  }
+
+  .modal-title{
+    font-size:17px;
+    font-weight:800;
+    color:var(--forest-deep);
+    margin:0 0 8px;
+  }
+
+  .modal-message{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    margin:0 0 20px;
+    line-height:1.5;
+  }
+
+  .modal-close{
+    display:none;
+  }
+
+  .modal-close.show{
+    display:inline-block;
+  }
+
   /* During PNG capture, make the entire app a clean static document. */
   .exporting .diagram-card{
     position:static !important;
@@ -385,7 +472,8 @@
 
   @media(max-width:960px){
     main.layout{grid-template-columns:1fr}
-    .diagram-card{position:static !important;top:auto}
+    .diagram-card{position:static !important;top:auto;order:2}
+    .dimensions{order:1}
   }
 
   @media(max-width:640px){
@@ -484,6 +572,16 @@
   <footer class="note">
     Quezon City Planning and Development Department
   </footer>
+
+  <!-- Save status modal -->
+  <div class="modal-overlay" id="statusModal" hidden>
+    <div class="modal-box">
+      <div class="modal-icon loading" id="modalIcon"><div class="spinner"></div></div>
+      <p class="modal-title" id="modalTitle">Saving…</p>
+      <p class="modal-message" id="modalMessage">Please wait while your entry is saved.</p>
+      <button class="reset-btn primary-btn modal-close" id="modalCloseBtn">Close</button>
+    </div>
+  </div>
 
 </div>
 
@@ -962,6 +1060,50 @@
     return !!GOOGLE_SHEET_WEB_APP_URL;
   }
 
+  /* ---------- SAVE STATUS MODAL ---------- */
+
+  const statusModal = document.getElementById('statusModal');
+  const modalIcon = document.getElementById('modalIcon');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalMessage = document.getElementById('modalMessage');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+  function showModal(kind,title,message){
+
+    modalIcon.className = 'modal-icon '+kind;
+
+    modalIcon.innerHTML =
+      kind === 'loading'
+        ? '<div class="spinner"></div>'
+        : (kind === 'success' ? '✓' : '✕');
+
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+
+    modalCloseBtn.classList.toggle(
+      'show',
+      kind !== 'loading'
+    );
+
+    statusModal.hidden = false;
+  }
+
+  function hideModal(){
+    statusModal.hidden = true;
+  }
+
+  modalCloseBtn.addEventListener('click',hideModal);
+
+  statusModal.addEventListener('click',(e) => {
+
+    if(
+      e.target === statusModal &&
+      modalCloseBtn.classList.contains('show')
+    ){
+      hideModal();
+    }
+  });
+
   /* ---------- PNG CAPTURE ---------- */
 
   async function renderFullSystemCanvas(){
@@ -974,12 +1116,6 @@
 
     const container =
       document.getElementById('systemContainer');
-
-    const toolbar =
-      document.getElementById('toolbarActions');
-
-    const note =
-      document.getElementById('sharedNote');
 
     document.body.classList.add('exporting');
 
@@ -998,12 +1134,19 @@
     const cloneNote =
       clone.querySelector('#sharedNote');
 
+    const cloneModal =
+      clone.querySelector('#statusModal');
+
     if(cloneToolbar){
       cloneToolbar.remove();
     }
 
     if(cloneNote){
       cloneNote.remove();
+    }
+
+    if(cloneModal){
+      cloneModal.remove();
     }
 
     const cloneButtons =
@@ -1100,8 +1243,10 @@
 
     if(!divisionName){
 
-      alert(
-        'Please enter the Name of Division/Group before saving.'
+      showModal(
+        'error',
+        'Missing Information',
+        'Please enter the Name of Office/Department before saving.'
       );
 
       return;
@@ -1112,13 +1257,18 @@
     btn.disabled = true;
     btn.textContent = 'Saving…';
 
+    showModal(
+      'loading',
+      'Saving…',
+      'Rendering your matrix and uploading it to Google Sheets and Drive. Please don\u2019t close this window.'
+    );
+
     try{
 
       /*
         1. Render the complete system as PNG.
-        2. Download a local copy.
-        3. Save the ratings to Google Sheets.
-        4. Upload the PNG to Google Drive through Apps Script.
+        2. Save the ratings to Google Sheets.
+        3. Upload the PNG to Google Drive through Apps Script.
       */
 
       const canvas =
@@ -1191,22 +1341,24 @@
         }
       }
 
-      /*
-        The PNG is already uploaded to Google Drive and the ratings are
-        already saved to the Google Sheet above — no local download needed.
-      */
-
       btn.textContent = 'Saved!';
+
+      showModal(
+        'success',
+        'Saved Successfully',
+        'Your matrix ratings and PNG snapshot have been saved to Google Sheets and Drive.'
+      );
 
     }catch(err){
 
       console.error(err);
 
-      alert(
-        'Could not save this entry: ' +
-        (err && err.message
+      showModal(
+        'error',
+        'Save Failed',
+        (err && err.message)
           ? err.message
-          : 'Unknown error.')
+          : 'Something went wrong while saving this entry. Please check your connection and try again.'
       );
 
       btn.textContent = originalLabel;
@@ -1216,7 +1368,10 @@
       setTimeout(() => {
 
         btn.disabled = false;
-        btn.textContent = originalLabel;
+
+        if(btn.textContent === 'Saving…'){
+          btn.textContent = originalLabel;
+        }
 
       },1500);
     }
