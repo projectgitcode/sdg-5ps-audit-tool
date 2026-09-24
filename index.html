@@ -7,481 +7,105 @@
 
 <style>
   :root{
-    --paper:#F6F4EC;
-    --paper-2:#EFECE0;
-    --ink:#1E2A22;
-    --ink-soft:#4B5A4F;
-    --forest:#1F5C3E;
-    --forest-deep:#123D28;
-    --line:#C9C3AE;
-    --green:#2E9E4F;
-    --green-ink:#fff;
-    --yellow:#F0BF2C;
-    --yellow-ink:#3a2e05;
-    --red:#DE4B45;
-    --red-ink:#fff;
-    --unrated:#DEDBCC;
-    --unrated-ink:#7a7562;
-    --radius:10px;
+    --paper:#F6F4EC;--paper-2:#EFECE0;--ink:#1E2A22;--ink-soft:#4B5A4F;
+    --forest:#1F5C3E;--forest-deep:#123D28;--line:#C9C3AE;
+    --green:#2E9E4F;--green-ink:#fff;--yellow:#F0BF2C;--yellow-ink:#3a2e05;
+    --red:#DE4B45;--red-ink:#fff;--unrated:#DEDBCC;--unrated-ink:#7a7562;--radius:10px;
   }
-
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.45;
-  }
+  body{background:var(--paper);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.45}
+  .app{max-width:1240px;margin:0 auto;padding:28px 20px 60px}
 
-  .app{
-    max-width:1240px;
-    margin:0 auto;
-    padding:28px 20px 60px;
-  }
+  header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px;border-bottom:3px solid var(--forest-deep);padding-bottom:18px;margin-bottom:26px}
+  .brand-eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:11.5px;font-weight:700;color:var(--forest);margin:0 0 4px}
+  h1{font-size:26px;margin:0;letter-spacing:-.01em;color:var(--forest-deep)}
+  .subtitle{margin:6px 0 0;color:var(--ink-soft);font-size:14px;max-width:100ch}
 
-  header.top{
-    display:flex;
-    flex-wrap:wrap;
-    align-items:flex-end;
-    justify-content:space-between;
-    gap:18px;
-    border-bottom:3px solid var(--forest-deep);
-    padding-bottom:18px;
-    margin-bottom:26px;
-  }
+  .lgu-field{display:flex;flex-direction:column;gap:4px;min-width:260px}
+  .lgu-field label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:700}
+  .lgu-field input,.lgu-field select{font-size:15px;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font-family:inherit}
+  .lgu-field select{margin-bottom:10px;cursor:pointer}
+  .lgu-field input:focus,.lgu-field select:focus{outline:2px solid var(--forest);outline-offset:1px}
 
-  .brand-eyebrow{
-    text-transform:uppercase;
-    letter-spacing:.14em;
-    font-size:11.5px;
-    font-weight:700;
-    color:var(--forest);
-    margin:0 0 4px;
-  }
-
-  h1{
-    font-size:26px;
-    margin:0;
-    letter-spacing:-.01em;
-    color:var(--forest-deep);
-  }
-
-  .subtitle{
-    margin:6px 0 0;
-    color:var(--ink-soft);
-    font-size:14px;
-    max-width:100ch;
-  }
-
-  .lgu-field{
-    display:flex;
-    flex-direction:column;
-    gap:4px;
-    min-width:260px;
-  }
-
-  .lgu-field label{
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-    color:var(--ink-soft);
-    font-weight:700;
-  }
-
-  .lgu-field input,
-  .lgu-field select{
-    font-size:15px;
-    padding:9px 11px;
-    border:1.5px solid var(--line);
-    border-radius:8px;
-    background:#fff;
-    color:var(--ink);
-    font-family:inherit;
-  }
-
-  .lgu-field select{
-    margin-bottom:10px;
-    cursor:pointer;
-  }
-
-  .lgu-field input:focus,
-  .lgu-field select:focus{
-    outline:2px solid var(--forest);
-    outline-offset:1px;
-  }
-
-  .toolbar{
-    margin:4px 0 18px;
-    background:#fff;
-    border:1.5px solid var(--line);
-    border-radius:var(--radius);
-    padding:18px 20px;
-  }
-
-  .instructions{
-    font-size:13.5px;
-    color:var(--ink);
-  }
-
-  .instr-title{
-    font-weight:800;
-    font-size:15px;
-    margin:0 0 10px;
-    color:var(--forest-deep);
-  }
-
-  .instr-body{
-    margin:0 0 12px;
-    line-height:1.55;
-  }
-
-  .instr-body strong,
-  .instr-scale strong{color:var(--forest-deep)}
-
-  .instr-scale{
-    margin:0;
-    padding-left:20px;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-  }
-
+  .toolbar{margin:4px 0 18px;background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+  .instructions{font-size:13.5px;color:var(--ink)}
+  .instr-title{font-weight:800;font-size:15px;margin:0 0 10px;color:var(--forest-deep)}
+  .instr-body{margin:0 0 12px;line-height:1.55}
+  .instr-body strong,.instr-scale strong{color:var(--forest-deep)}
+  .instr-scale{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
   .instr-scale li{line-height:1.55}
 
-  main.layout{
-    display:grid;
-    grid-template-columns:480px 1fr;
-    gap:34px;
-    align-items:start;
-  }
+  main.layout{display:grid;grid-template-columns:480px 1fr;gap:34px;align-items:start}
+  .diagram-card{position:sticky;top:20px;background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);padding:22px 20px 18px}
+  .diagram-wrap{width:100%;max-width:440px;margin:0 auto}
+  #diagramSvg{display:block;width:100%;height:auto}
 
-  .diagram-card{
-    position:sticky;
-    top:20px;
-    background:#fff;
-    border:1.5px solid var(--line);
-    border-radius:var(--radius);
-    padding:22px 20px 18px;
-  }
+  .legend{display:flex;gap:16px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .legend-item{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-soft)}
+  .legend-swatch{width:13px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.15)}
 
-  .diagram-wrap{
-    width:100%;
-    max-width:440px;
-    margin:0 auto;
-  }
-
-  #diagramSvg{
-    display:block;
-    width:100%;
-    height:auto;
-  }
-
-  .legend{
-    display:flex;
-    gap:16px;
-    justify-content:center;
-    margin-top:14px;
-    flex-wrap:wrap;
-  }
-
-  .legend-item{
-    display:flex;
-    align-items:center;
-    gap:7px;
-    font-size:12.5px;
-    color:var(--ink-soft);
-  }
-
-  .legend-swatch{
-    width:13px;
-    height:13px;
-    border-radius:3px;
-    border:1px solid rgba(0,0,0,.15);
-  }
-
-  .score-summary{
-    margin-top:16px;
-    border-top:1px solid var(--line);
-    padding-top:14px;
-  }
-
-  .score-row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-size:12.5px;
-    margin-bottom:7px;
-  }
-
-  .score-row .dim-name{
-    width:170px;
-    flex-shrink:0;
-    color:var(--ink-soft);
-    font-weight:600;
-  }
-
-  .score-bar{
-    flex:1;
-    height:9px;
-    border-radius:5px;
-    overflow:hidden;
-    display:flex;
-    background:var(--unrated);
-  }
-
+  .score-summary{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+  .score-row{display:flex;align-items:center;gap:10px;font-size:12.5px;margin-bottom:7px}
+  .score-row .dim-name{width:170px;flex-shrink:0;color:var(--ink-soft);font-weight:600}
+  .score-bar{flex:1;height:9px;border-radius:5px;overflow:hidden;display:flex;background:var(--unrated)}
   .score-bar span{height:100%}
 
-  section.dimension{
-    background:#fff;
-    border:1.5px solid var(--line);
-    border-radius:var(--radius);
-    margin-bottom:18px;
-    overflow:hidden;
-  }
+  section.dimension{background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);margin-bottom:18px;overflow:hidden}
+  .dim-header{display:flex;align-items:center;gap:10px;padding:14px 18px;background:var(--forest-deep);color:#fff}
+  .dim-header .swatch{width:10px;height:26px;border-radius:3px;flex-shrink:0}
+  .dim-header h2{font-size:15.5px;margin:0;letter-spacing:.02em;text-transform:uppercase}
+  .dim-header .dim-side{margin-left:auto;font-size:11px;opacity:.75;text-transform:uppercase;letter-spacing:.08em}
 
-  .dim-header{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:14px 18px;
-    background:var(--forest-deep);
-    color:#fff;
-  }
-
-  .dim-header .swatch{
-    width:10px;
-    height:26px;
-    border-radius:3px;
-    flex-shrink:0;
-  }
-
-  .dim-header h2{
-    font-size:15.5px;
-    margin:0;
-    letter-spacing:.02em;
-    text-transform:uppercase;
-  }
-
-  .dim-header .dim-side{
-    margin-left:auto;
-    font-size:11px;
-    opacity:.75;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-  }
-
-  .question{
-    padding:14px 18px;
-    border-top:1px solid var(--paper-2);
-    display:grid;
-    grid-template-columns:1fr 156px;
-    gap:16px;
-    align-items:start;
-  }
-
+  .question{padding:14px 18px;border-top:1px solid var(--paper-2);display:grid;grid-template-columns:1fr 156px;gap:16px;align-items:start}
   .q-text{font-size:14px}
-  .q-text .num{
-    font-weight:700;
-    color:var(--forest);
-    margin-right:6px;
-  }
+  .q-text .num{font-weight:700;color:var(--forest);margin-right:6px}
+  .q-text .tl{display:block;font-style:italic;color:var(--ink-soft);font-size:12.5px;margin-top:4px}
 
-  .q-text .tl{
-    display:block;
-    font-style:italic;
-    color:var(--ink-soft);
-    font-size:12.5px;
-    margin-top:4px;
-  }
-
-  .toggle{
-    display:flex;
-    border:1.5px solid var(--line);
-    border-radius:8px;
-    overflow:hidden;
-    height:34px;
-  }
-
-  .toggle button{
-    flex:1;
-    border:none;
-    background:#fff;
-    color:var(--ink-soft);
-    font-weight:700;
-    font-size:13px;
-    cursor:pointer;
-    font-family:inherit;
-    border-left:1px solid var(--line);
-  }
-
+  .toggle{display:flex;border:1.5px solid var(--line);border-radius:8px;overflow:hidden;height:34px}
+  .toggle button{flex:1;border:none;background:#fff;color:var(--ink-soft);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;border-left:1px solid var(--line)}
   .toggle button:first-child{border-left:none}
   .toggle button:hover{background:var(--paper-2)}
   .toggle button.sel-A{background:var(--green);color:var(--green-ink)}
   .toggle button.sel-B{background:var(--yellow);color:var(--yellow-ink)}
   .toggle button.sel-C{background:var(--red);color:var(--red-ink)}
 
-  .toolbar-actions{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:8px;
-    flex-wrap:wrap;
-    margin-top:16px;
-    padding-top:16px;
-    border-top:1px solid var(--line);
-  }
-
-  .reset-btn{
-    background:none;
-    border:1.5px solid var(--forest);
-    color:var(--forest);
-    font-weight:700;
-    font-size:12.5px;
-    padding:8px 14px;
-    border-radius:7px;
-    cursor:pointer;
-    font-family:inherit;
-  }
-
+  .toolbar-actions{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+  .reset-btn{background:none;border:1.5px solid var(--forest);color:var(--forest);font-weight:700;font-size:12.5px;padding:8px 14px;border-radius:7px;cursor:pointer;font-family:inherit}
   .reset-btn:hover{background:var(--forest);color:#fff}
+  .primary-btn{background:var(--forest);color:#fff}
+  .primary-btn:hover{background:var(--forest-deep);border-color:var(--forest-deep)}
 
-  .primary-btn{
-    background:var(--forest);
-    color:#fff;
-  }
-
-  .primary-btn:hover{
-    background:var(--forest-deep);
-    border-color:var(--forest-deep);
-  }
-
-  .shared-note{
-    text-align:center;
-    font-size:11.5px;
-    color:var(--ink-soft);
-    margin:0 0 22px;
-  }
-
-  footer.note{
-    margin-top:26px;
-    text-align:center;
-    font-size:12px;
-    color:var(--ink-soft);
-    border-top:1px solid var(--line);
-    padding-top:14px;
-  }
+  footer.note{margin-top:26px;text-align:center;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px}
 
   /* ---------- SAVE STATUS MODAL ---------- */
-
-  .modal-overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(18,61,40,.5);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:1000;
-    padding:20px;
-  }
-
+  .modal-overlay{position:fixed;inset:0;background:rgba(18,61,40,.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
   .modal-overlay[hidden]{display:none}
-
-  .modal-box{
-    background:#fff;
-    border-radius:14px;
-    padding:30px 26px 24px;
-    max-width:360px;
-    width:100%;
-    text-align:center;
-    box-shadow:0 24px 60px rgba(0,0,0,.28);
-  }
-
-  .modal-icon{
-    width:54px;
-    height:54px;
-    border-radius:50%;
-    margin:0 auto 16px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:24px;
-    font-weight:800;
-  }
-
-  .modal-icon.loading{
-    background:var(--paper-2);
-    color:var(--forest);
-  }
-
-  .modal-icon .spinner{
-    width:24px;
-    height:24px;
-    border-radius:50%;
-    border:3px solid var(--line);
-    border-top-color:var(--forest);
-    animation:modalspin .8s linear infinite;
-  }
-
-  @keyframes modalspin{
-    to{transform:rotate(360deg)}
-  }
-
-  .modal-icon.success{
-    background:#DFF3E4;
-    color:var(--green);
-  }
-
-  .modal-icon.error{
-    background:#FBE1DF;
-    color:var(--red);
-  }
-
-  .modal-title{
-    font-size:17px;
-    font-weight:800;
-    color:var(--forest-deep);
-    margin:0 0 8px;
-  }
-
-  .modal-message{
-    font-size:13.5px;
-    color:var(--ink-soft);
-    margin:0 0 20px;
-    line-height:1.5;
-  }
-
-  .modal-close{
-    display:none;
-  }
-
-  .modal-close.show{
-    display:inline-block;
-  }
+  .modal-box{background:#fff;border-radius:14px;padding:30px 26px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.28)}
+  .modal-icon{width:54px;height:54px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800}
+  .modal-icon.loading{background:var(--paper-2);color:var(--forest)}
+  .modal-icon .spinner{width:24px;height:24px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--forest);animation:modalspin .8s linear infinite}
+  @keyframes modalspin{to{transform:rotate(360deg)}}
+  .modal-icon.success{background:#DFF3E4;color:var(--green)}
+  .modal-icon.error{background:#FBE1DF;color:var(--red)}
+  .modal-title{font-size:17px;font-weight:800;color:var(--forest-deep);margin:0 0 8px}
+  .modal-message{font-size:13.5px;color:var(--ink-soft);margin:0 0 20px;line-height:1.5}
+  .modal-close{display:none}
+  .modal-close.show{display:inline-block}
 
   /* During PNG capture, make the entire app a clean static document. */
-  .exporting .diagram-card{
-    position:static !important;
-    top:auto !important;
-  }
-
-  .exporting .toolbar-actions,
-  .exporting .shared-note{
-    /* Kept in the DOM for normal use, but excluded from the image by JS. */
-  }
+  .exporting .diagram-card{position:static !important;top:auto !important}
 
   @media(max-width:960px){
     main.layout{grid-template-columns:1fr}
     .diagram-card{position:static !important;top:auto;order:2}
     .dimensions{order:1}
   }
-
   @media(max-width:640px){
     .question{grid-template-columns:1fr}
     .toggle{height:44px}
     .toggle button{font-size:15px}
   }
-
   @media(max-width:480px){
     h1{font-size:21px}
     .lgu-field{min-width:0;width:100%}
@@ -565,10 +189,6 @@
     <button class="reset-btn" id="resetBtn">Reset</button>
   </div>
 
-  <!-- <p class="shared-note" id="sharedNote">
-   
-  </p> -->
-
   <footer class="note">
     Quezon City Planning and Development Department
   </footer>
@@ -591,29 +211,13 @@
 <script>
 (function(){
 
-  const COLORS = {
-    A:'#2E9E4F',
-    B:'#F0BF2C',
-    C:'#DE4B45',
-    U:'#DEDBCC'
-  };
+  const COLORS = {A:'#2E9E4F',B:'#F0BF2C',C:'#DE4B45',U:'#DEDBCC'};
 
   const N_PILLARS = 5;
 
-  const SWATCHES = [
-    '#7BB9A8',
-    '#C9A15A',
-    '#8FA6C9',
-    '#A98FC9',
-    '#8FBF7B'
-  ];
+  const SWATCHES = ['#7BB9A8','#C9A15A','#8FA6C9','#A98FC9','#8FBF7B'];
 
-  const LABELS = {
-    A:'Progressing',
-    B:'Stagnating',
-    C:'Regressing',
-    U:'Unrated'
-  };
+  const LABELS = {A:'Progressing',B:'Stagnating',C:'Regressing',U:'Unrated'};
 
   const DIMENSIONS = [
     {
@@ -701,10 +305,7 @@
     ];
   }
 
-  const VERTS = Array.from(
-    {length:N_PILLARS},
-    (_,i) => vertexPoint(i)
-  );
+  const VERTS = Array.from({length:N_PILLARS},(_,i) => vertexPoint(i));
 
   function lerpPoint(from,to,t){
     return [
@@ -714,9 +315,7 @@
   }
 
   function pointsToStr(pts){
-    return pts
-      .map(p => p[0].toFixed(2)+','+p[1].toFixed(2))
-      .join(' ');
+    return pts.map(p => p[0].toFixed(2)+','+p[1].toFixed(2)).join(' ');
   }
 
   function ringPolygon(pA,pB,k){
@@ -741,9 +340,7 @@
   }
 
   function labelPos(dimIndex){
-    const angle = toRad(
-      -90 + (dimIndex + .5) * (360 / N_PILLARS)
-    );
+    const angle = toRad(-90 + (dimIndex + .5) * (360 / N_PILLARS));
 
     return [
       CENTER[0] + LABEL_R * Math.cos(angle),
@@ -752,10 +349,7 @@
   }
 
   function svgEl(name,attrs){
-    const el = document.createElementNS(
-      'http://www.w3.org/2000/svg',
-      name
-    );
+    const el = document.createElementNS('http://www.w3.org/2000/svg',name);
 
     for(const k in attrs){
       el.setAttribute(k,attrs[k]);
@@ -885,9 +479,7 @@
         const val = state[dim.id][k-1];
         const color = val ? COLORS[val] : COLORS.U;
 
-        const poly = document.getElementById(
-          'poly-'+dim.id+'-'+k
-        );
+        const poly = document.getElementById('poly-'+dim.id+'-'+k);
 
         if(poly){
           poly.setAttribute('fill',color);
@@ -931,8 +523,7 @@
 
   /* ---------- CONTROLS ---------- */
 
-  const dimensionsRoot =
-    document.getElementById('dimensionsRoot');
+  const dimensionsRoot = document.getElementById('dimensionsRoot');
 
   function buildControls(){
 
@@ -987,10 +578,7 @@
                 ? null
                 : letter;
 
-            refreshToggle(
-              toggle,
-              state[dim.id][idx]
-            );
+            refreshToggle(toggle,state[dim.id][idx]);
 
             updateDiagram();
           });
@@ -1051,7 +639,7 @@
       updateDiagram();
     });
 
-  /* ---------- GOOGLE APPS SCRIPT ---------- */
+  /* ---------- GOOGLE APPS SCRIPT (Drive upload) ---------- */
 
   const GOOGLE_SHEET_WEB_APP_URL =
     'https://script.google.com/macros/s/AKfycbxYTTy69x-PWDVsRhanFqNzEz_LgQjPwmgyZqdwfS3TxnDcY3CjRNh3uQCfDzyoxb9UNg/exec';
@@ -1080,10 +668,7 @@
     modalTitle.textContent = title;
     modalMessage.textContent = message;
 
-    modalCloseBtn.classList.toggle(
-      'show',
-      kind !== 'loading'
-    );
+    modalCloseBtn.classList.toggle('show',kind !== 'loading');
 
     statusModal.hidden = false;
   }
@@ -1114,8 +699,7 @@
       );
     }
 
-    const container =
-      document.getElementById('systemContainer');
+    const container = document.getElementById('systemContainer');
 
     document.body.classList.add('exporting');
 
@@ -1128,31 +712,15 @@
 
     clone.id = 'pngExportClone';
 
-    const cloneToolbar =
-      clone.querySelector('#toolbarActions');
+    const cloneToolbar = clone.querySelector('#toolbarActions');
+    const cloneNote = clone.querySelector('#sharedNote');
+    const cloneModal = clone.querySelector('#statusModal');
 
-    const cloneNote =
-      clone.querySelector('#sharedNote');
+    if(cloneToolbar){ cloneToolbar.remove(); }
+    if(cloneNote){ cloneNote.remove(); }
+    if(cloneModal){ cloneModal.remove(); }
 
-    const cloneModal =
-      clone.querySelector('#statusModal');
-
-    if(cloneToolbar){
-      cloneToolbar.remove();
-    }
-
-    if(cloneNote){
-      cloneNote.remove();
-    }
-
-    if(cloneModal){
-      cloneModal.remove();
-    }
-
-    const cloneButtons =
-      clone.querySelectorAll('button');
-
-    cloneButtons.forEach(btn => {
+    clone.querySelectorAll('button').forEach(btn => {
       btn.style.pointerEvents = 'none';
     });
 
@@ -1160,11 +728,7 @@
       Make the clone wide enough to preserve the desktop layout
       when the user is viewing the tool on a smaller screen.
     */
-    clone.style.width = Math.max(
-      container.scrollWidth,
-      1240
-    ) + 'px';
-
+    clone.style.width = Math.max(container.scrollWidth,1240) + 'px';
     clone.style.maxWidth = '1240px';
     clone.style.margin = '0';
     clone.style.position = 'absolute';
@@ -1175,33 +739,23 @@
     document.body.appendChild(clone);
 
     /*
-      Copy the current input value because cloneNode does not
+      Copy the current input values because cloneNode does not
       reliably copy the live value of form controls.
     */
-    const originalInput =
-      document.getElementById('lguName');
-
-    const clonedInput =
-      clone.querySelector('#lguName');
+    const originalInput = document.getElementById('lguName');
+    const clonedInput = clone.querySelector('#lguName');
 
     if(originalInput && clonedInput){
       clonedInput.value = originalInput.value;
     }
 
-    const originalSelect =
-      document.getElementById('pillarSelect');
-
-    const clonedSelect =
-      clone.querySelector('#pillarSelect');
+    const originalSelect = document.getElementById('pillarSelect');
+    const clonedSelect = clone.querySelector('#pillarSelect');
 
     if(originalSelect && clonedSelect){
       clonedSelect.value = originalSelect.value;
     }
 
-    /*
-      Keep the SVG exactly as it currently appears.
-      html2canvas handles the inline SVG used by this tool.
-    */
     await new Promise(resolve => requestAnimationFrame(resolve));
 
     try{
@@ -1230,10 +784,40 @@
 
   /* ---------- SAVE ENTRY AS PNG ---------- */
 
+  /* Downloads the rendered canvas to the respondent's device as a PNG. */
+  function downloadCanvasAsPng(canvas,fileName){
+
+    return new Promise((resolve,reject) => {
+
+      canvas.toBlob(blob => {
+
+        if(!blob){
+          reject(new Error('Could not create the PNG file.'));
+          return;
+        }
+
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.style.display = 'none';
+
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        setTimeout(() => URL.revokeObjectURL(url),1500);
+
+        resolve();
+
+      },'image/png');
+    });
+  }
+
   async function saveEntryAndReport(){
 
-    const btn =
-      document.getElementById('saveAllBtn');
+    const btn = document.getElementById('saveAllBtn');
 
     const divisionName =
       (document.getElementById('lguName').value || '').trim();
@@ -1260,94 +844,90 @@
     showModal(
       'loading',
       'Saving…',
-      'Rendering your matrix and uploading it to Google Sheets and Drive. Please don\u2019t close this window.'
+      'Rendering your matrix, downloading your copy, and uploading it to Google Drive. Please don\u2019t close this window.'
     );
 
     try{
 
       /*
         1. Render the complete system as PNG.
-        2. Save the ratings to Google Sheets.
-        3. Upload the PNG to Google Drive through Apps Script.
+        2. Download the PNG to the respondent's device (their copy).
+        3. Upload the same PNG to Google Drive through Apps Script.
       */
 
-      const canvas =
-        await renderFullSystemCanvas();
-
-      const pngDataUrl =
-        canvas.toDataURL('image/png');
-
-      const pngBase64 =
-        pngDataUrl.split('base64,')[1];
+      const canvas = await renderFullSystemCanvas();
 
       const pngFileName =
-        toFileName(divisionName) +
-        '_SDG_5Ps_Audit.png';
+        toFileName(divisionName) + '_SDG_5Ps_Audit.png';
 
-      const ratingsPayload = {
-        lgu:divisionName,
-        pillar:pillarValue,
-        savedAt:new Date().toISOString(),
-        ratings:state
-      };
+      /* Respondent copy first, so they always get it even if the upload fails. */
+      await downloadCanvasAsPng(canvas,pngFileName);
 
-      /*
-        Save ratings + PNG to the existing Apps Script endpoint.
-        The endpoint must accept:
-          action: "saveFile"
-          mimeType: "image/png"
-          fileType: "png"
-      */
+      let driveSaved = false;
+      let driveError = null;
+
       if(sheetConfigured()){
 
-        const results =
-          await Promise.allSettled([
+        try{
 
-            fetch(GOOGLE_SHEET_WEB_APP_URL,{
-              method:'POST',
-              mode:'no-cors',
-              headers:{
-                'Content-Type':
-                  'text/plain;charset=utf-8'
-              },
-              body:JSON.stringify(ratingsPayload)
-            }),
+          const pngBase64 =
+            canvas.toDataURL('image/png').split('base64,')[1];
 
-            fetch(GOOGLE_SHEET_WEB_APP_URL,{
-              method:'POST',
-              mode:'no-cors',
-              headers:{
-                'Content-Type':
-                  'text/plain;charset=utf-8'
-              },
-              body:JSON.stringify({
-                action:'saveFile',
-                fileType:'png',
-                fileName:pngFileName,
-                mimeType:'image/png',
-                pillar:pillarValue,
-                base64:pngBase64
-              })
+          await fetch(GOOGLE_SHEET_WEB_APP_URL,{
+            method:'POST',
+            mode:'no-cors',
+            headers:{
+              'Content-Type':'text/plain;charset=utf-8'
+            },
+            body:JSON.stringify({
+              action:'saveFile',
+              fileType:'png',
+              fileName:pngFileName,
+              mimeType:'image/png',
+              pillar:pillarValue,
+              base64:pngBase64
             })
-          ]);
+          });
 
-        const failed =
-          results.filter(r => r.status === 'rejected');
+          driveSaved = true;
 
-        if(failed.length){
-          throw new Error(
-            'Network error while sending the entry to Google.'
-          );
+        }catch(uploadErr){
+
+          console.error(uploadErr);
+          driveError = uploadErr;
         }
       }
 
-      btn.textContent = 'Saved!';
+      if(driveSaved){
 
-      showModal(
-        'success',
-        'Saved Successfully',
-        'Your matrix ratings and PNG snapshot have been saved to Google Sheets and Drive.'
-      );
+        btn.textContent = 'Saved!';
+
+        showModal(
+          'success',
+          'Saved Successfully',
+          'Your matrix PNG was saved to Google Drive and a copy was downloaded to your device.'
+        );
+
+      }else if(driveError){
+
+        btn.textContent = originalLabel;
+
+        showModal(
+          'error',
+          'Downloaded, but Upload Failed',
+          'Your PNG copy was downloaded to your device, but it could not be uploaded to Google Drive. Please check your connection and press Save Matrix again.'
+        );
+
+      }else{
+
+        btn.textContent = originalLabel;
+
+        showModal(
+          'success',
+          'Downloaded',
+          'Your matrix PNG was downloaded to your device. Google Drive saving is not configured.'
+        );
+      }
 
     }catch(err){
 
@@ -1379,15 +959,6 @@
 
   document.getElementById('saveAllBtn')
     .addEventListener('click',saveEntryAndReport);
-
-  if(!sheetConfigured()){
-
-    const saveBtn =
-      document.getElementById('saveAllBtn');
-
-    saveBtn.title =
-      'Local PNG saving is available; Google saving is not configured.';
-  }
 
   /* ---------- INIT ---------- */
 
