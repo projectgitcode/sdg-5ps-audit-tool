@@ -146,7 +146,7 @@ footer.note{margin-top:26px;text-align:center;font-size:12px;color:var(--ink-sof
 <div class="modal-overlay" id="statusModal" hidden>
   <div class="modal-box">
     <div class="modal-icon loading" id="modalIcon"><div class="spinner"></div></div>
-    <p class="modal-title" id="modalTitle">Sine-save…</p>
+    <p class="modal-title" id="modalTitle">Saving…</p>
     <p class="modal-message" id="modalMessage">Please wait while your entry is saved.</p>
     <button class="reset-btn primary-btn modal-close" id="modalCloseBtn">Close</button>
   </div>
@@ -368,8 +368,8 @@ async function saveEntryAndReport(){
   if(!officeName){showModal('error','Kulang ang Impormasyon','Pakilagay ang Pangalan ng Opisina/Departamento bago i-save.');return}
 
   const originalLabel=btn.textContent;
-  btn.disabled=true;btn.textContent='Sine-save…';
-  showModal('loading','Sine-save…','Rendering your matrix, downloading your copy, and uploading it to Google Drive. Please don\u2019t close this window.');
+  btn.disabled=true;btn.textContent='Saving…';
+  showModal('loading','Saving…','Rendering your matrix, downloading your copy, and uploading it to Google Drive. Please don\u2019t close this window.');
 
   try{
     const canvas=await renderFullSystemCanvas();
@@ -415,7 +415,7 @@ async function saveEntryAndReport(){
     showModal('error','Save Failed',(err&&err.message)?err.message:'Something went wrong while saving this entry. Please check your connection and try again.');
     btn.textContent=originalLabel;
   }finally{
-    setTimeout(()=>{btn.disabled=false;if(btn.textContent==='Sine-save…')btn.textContent=originalLabel},1500);
+    setTimeout(()=>{btn.disabled=false;if(btn.textContent==='Saving…')btn.textContent=originalLabel},1500);
   }
 }
 document.getElementById('saveAllBtn').addEventListener('click',saveEntryAndReport);
