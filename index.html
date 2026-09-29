@@ -1,974 +1,427 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tl">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SDG 5Ps Audit Tool</title>
-
+<title>SDG 5Ps Audit Tool (Tagalog)</title>
 <style>
-  :root{
-    --paper:#F6F4EC;--paper-2:#EFECE0;--ink:#1E2A22;--ink-soft:#4B5A4F;
-    --forest:#1F5C3E;--forest-deep:#123D28;--line:#C9C3AE;
-    --green:#2E9E4F;--green-ink:#fff;--yellow:#F0BF2C;--yellow-ink:#3a2e05;
-    --red:#DE4B45;--red-ink:#fff;--unrated:#DEDBCC;--unrated-ink:#7a7562;--radius:10px;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{background:var(--paper);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.45}
-  .app{max-width:1240px;margin:0 auto;padding:28px 20px 60px}
-
-  header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px;border-bottom:3px solid var(--forest-deep);padding-bottom:18px;margin-bottom:26px}
-  .brand-eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:11.5px;font-weight:700;color:var(--forest);margin:0 0 4px}
-  h1{font-size:26px;margin:0;letter-spacing:-.01em;color:var(--forest-deep)}
-  .subtitle{margin:6px 0 0;color:var(--ink-soft);font-size:14px;max-width:100ch}
-
-  .lgu-field{display:flex;flex-direction:column;gap:4px;min-width:260px}
-  .lgu-field label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:700}
-  .lgu-field input,.lgu-field select{font-size:15px;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font-family:inherit}
-  .lgu-field select{margin-bottom:10px;cursor:pointer}
-  .lgu-field input:focus,.lgu-field select:focus{outline:2px solid var(--forest);outline-offset:1px}
-
-  .toolbar{margin:4px 0 18px;background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);padding:18px 20px}
-  .instructions{font-size:13.5px;color:var(--ink)}
-  .instr-title{font-weight:800;font-size:15px;margin:0 0 10px;color:var(--forest-deep)}
-  .instr-body{margin:0 0 12px;line-height:1.55}
-  .instr-body strong,.instr-scale strong{color:var(--forest-deep)}
-  .instr-scale{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
-  .instr-scale li{line-height:1.55}
-
-  main.layout{display:grid;grid-template-columns:480px 1fr;gap:34px;align-items:start}
-  .diagram-card{position:sticky;top:20px;background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);padding:22px 20px 18px}
-  .diagram-wrap{width:100%;max-width:440px;margin:0 auto}
-  #diagramSvg{display:block;width:100%;height:auto}
-
-  .legend{display:flex;gap:16px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-  .legend-item{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-soft)}
-  .legend-swatch{width:13px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.15)}
-
-  .score-summary{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
-  .score-row{display:flex;align-items:center;gap:10px;font-size:12.5px;margin-bottom:7px}
-  .score-row .dim-name{width:170px;flex-shrink:0;color:var(--ink-soft);font-weight:600}
-  .score-bar{flex:1;height:9px;border-radius:5px;overflow:hidden;display:flex;background:var(--unrated)}
-  .score-bar span{height:100%}
-
-  section.dimension{background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);margin-bottom:18px;overflow:hidden}
-  .dim-header{display:flex;align-items:center;gap:10px;padding:14px 18px;background:var(--forest-deep);color:#fff}
-  .dim-header .swatch{width:10px;height:26px;border-radius:3px;flex-shrink:0}
-  .dim-header h2{font-size:15.5px;margin:0;letter-spacing:.02em;text-transform:uppercase}
-  .dim-header .dim-side{margin-left:auto;font-size:11px;opacity:.75;text-transform:uppercase;letter-spacing:.08em}
-
-  .question{padding:14px 18px;border-top:1px solid var(--paper-2);display:grid;grid-template-columns:1fr 156px;gap:16px;align-items:start}
-  .q-text{font-size:14px}
-  .q-text .num{font-weight:700;color:var(--forest);margin-right:6px}
-  .q-text .tl{display:block;font-style:italic;color:var(--ink-soft);font-size:12.5px;margin-top:4px}
-
-  .toggle{display:flex;border:1.5px solid var(--line);border-radius:8px;overflow:hidden;height:34px}
-  .toggle button{flex:1;border:none;background:#fff;color:var(--ink-soft);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;border-left:1px solid var(--line)}
-  .toggle button:first-child{border-left:none}
-  .toggle button:hover{background:var(--paper-2)}
-  .toggle button.sel-A{background:var(--green);color:var(--green-ink)}
-  .toggle button.sel-B{background:var(--yellow);color:var(--yellow-ink)}
-  .toggle button.sel-C{background:var(--red);color:var(--red-ink)}
-
-  .toolbar-actions{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
-  .reset-btn{background:none;border:1.5px solid var(--forest);color:var(--forest);font-weight:700;font-size:12.5px;padding:8px 14px;border-radius:7px;cursor:pointer;font-family:inherit}
-  .reset-btn:hover{background:var(--forest);color:#fff}
-  .primary-btn{background:var(--forest);color:#fff}
-  .primary-btn:hover{background:var(--forest-deep);border-color:var(--forest-deep)}
-
-  footer.note{margin-top:26px;text-align:center;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px}
-
-  /* ---------- SAVE STATUS MODAL ---------- */
-  .modal-overlay{position:fixed;inset:0;background:rgba(18,61,40,.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
-  .modal-overlay[hidden]{display:none}
-  .modal-box{background:#fff;border-radius:14px;padding:30px 26px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.28)}
-  .modal-icon{width:54px;height:54px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800}
-  .modal-icon.loading{background:var(--paper-2);color:var(--forest)}
-  .modal-icon .spinner{width:24px;height:24px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--forest);animation:modalspin .8s linear infinite}
-  @keyframes modalspin{to{transform:rotate(360deg)}}
-  .modal-icon.success{background:#DFF3E4;color:var(--green)}
-  .modal-icon.error{background:#FBE1DF;color:var(--red)}
-  .modal-title{font-size:17px;font-weight:800;color:var(--forest-deep);margin:0 0 8px}
-  .modal-message{font-size:13.5px;color:var(--ink-soft);margin:0 0 20px;line-height:1.5}
-  .modal-close{display:none}
-  .modal-close.show{display:inline-block}
-
-  /* During PNG capture, make the entire app a clean static document. */
-  .exporting .diagram-card{position:static !important;top:auto !important}
-
-  @media(max-width:960px){
-    main.layout{grid-template-columns:1fr}
-    .diagram-card{position:static !important;top:auto;order:2}
-    .dimensions{order:1}
-  }
-  @media(max-width:640px){
-    .question{grid-template-columns:1fr}
-    .toggle{height:44px}
-    .toggle button{font-size:15px}
-  }
-  @media(max-width:480px){
-    h1{font-size:21px}
-    .lgu-field{min-width:0;width:100%}
-    .app{padding:18px 14px 44px}
-  }
+:root{--paper:#F6F4EC;--paper-2:#EFECE0;--ink:#1E2A22;--ink-soft:#4B5A4F;--forest:#1F5C3E;--forest-deep:#123D28;--line:#C9C3AE;--green:#2E9E4F;--green-ink:#fff;--yellow:#F0BF2C;--yellow-ink:#3a2e05;--red:#DE4B45;--red-ink:#fff;--unrated:#DEDBCC;--radius:10px}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.45}
+.app{max-width:1240px;margin:0 auto;padding:28px 20px 60px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px;border-bottom:3px solid var(--forest-deep);padding-bottom:18px;margin-bottom:26px}
+.brand-eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:11.5px;font-weight:700;color:var(--forest);margin:0 0 4px}
+h1{font-size:26px;margin:0;letter-spacing:-.01em;color:var(--forest-deep)}
+.subtitle{margin:6px 0 0;color:var(--ink-soft);font-size:14px;max-width:100ch}
+.en{display:block;font-style:italic;color:var(--ink-soft);font-size:12.5px;margin-top:4px;font-weight:400}
+.lgu-field{display:flex;flex-direction:column;gap:4px;min-width:260px}
+.lgu-field label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:700}
+.lgu-field label i{text-transform:none;letter-spacing:0;font-weight:400}
+.lgu-field input,.lgu-field select{font-size:15px;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font-family:inherit}
+.lgu-field select{margin-bottom:10px;cursor:pointer}
+.lgu-field input:focus,.lgu-field select:focus{outline:2px solid var(--forest);outline-offset:1px}
+.toolbar{margin:4px 0 18px;background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+.instructions{font-size:13.5px}
+.instr-title{font-weight:800;font-size:15px;margin:0 0 10px;color:var(--forest-deep)}
+.instr-body{margin:0 0 12px;line-height:1.55}
+.instr-body strong,.instr-scale strong{color:var(--forest-deep)}
+.instr-scale{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+.instr-scale li{line-height:1.55}
+main.layout{display:grid;grid-template-columns:480px 1fr;gap:34px;align-items:start}
+.diagram-card{position:sticky;top:20px;background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);padding:22px 20px 18px}
+.diagram-wrap{width:100%;max-width:440px;margin:0 auto}
+#diagramSvg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:16px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-soft)}
+.legend-swatch{width:13px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.15)}
+.score-summary{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.score-row{display:flex;align-items:center;gap:10px;font-size:12.5px;margin-bottom:7px}
+.score-row .dim-name{width:170px;flex-shrink:0;color:var(--ink-soft);font-weight:600}
+.score-bar{flex:1;height:9px;border-radius:5px;overflow:hidden;display:flex;background:var(--unrated)}
+.score-bar span{height:100%}
+section.dimension{background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);margin-bottom:18px;overflow:hidden}
+.dim-header{display:flex;align-items:center;gap:10px;padding:14px 18px;background:var(--forest-deep);color:#fff}
+.dim-header .swatch{width:10px;height:26px;border-radius:3px;flex-shrink:0}
+.dim-header h2{font-size:15.5px;margin:0;letter-spacing:.02em;text-transform:uppercase}
+.dim-header .dim-side{margin-left:auto;font-size:11px;opacity:.75;text-transform:uppercase;letter-spacing:.08em}
+.question{padding:14px 18px;border-top:1px solid var(--paper-2);display:grid;grid-template-columns:1fr 156px;gap:16px;align-items:start}
+.q-text{font-size:14px}
+.q-text .num{font-weight:700;color:var(--forest);margin-right:6px}
+.toggle{display:flex;border:1.5px solid var(--line);border-radius:8px;overflow:hidden;height:34px}
+.toggle button{flex:1;border:none;background:#fff;color:var(--ink-soft);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;border-left:1px solid var(--line)}
+.toggle button:first-child{border-left:none}
+.toggle button:hover{background:var(--paper-2)}
+.toggle button.sel-A{background:var(--green);color:var(--green-ink)}
+.toggle button.sel-B{background:var(--yellow);color:var(--yellow-ink)}
+.toggle button.sel-C{background:var(--red);color:var(--red-ink)}
+.toolbar-actions{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.reset-btn{background:none;border:1.5px solid var(--forest);color:var(--forest);font-weight:700;font-size:12.5px;padding:8px 14px;border-radius:7px;cursor:pointer;font-family:inherit}
+.reset-btn:hover{background:var(--forest);color:#fff}
+.primary-btn{background:var(--forest);color:#fff}
+.primary-btn:hover{background:var(--forest-deep);border-color:var(--forest-deep)}
+footer.note{margin-top:26px;text-align:center;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px}
+.modal-overlay{position:fixed;inset:0;background:rgba(18,61,40,.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal-overlay[hidden]{display:none}
+.modal-box{background:#fff;border-radius:14px;padding:30px 26px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.28)}
+.modal-icon{width:54px;height:54px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800}
+.modal-icon.loading{background:var(--paper-2);color:var(--forest)}
+.modal-icon .spinner{width:24px;height:24px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--forest);animation:modalspin .8s linear infinite}
+@keyframes modalspin{to{transform:rotate(360deg)}}
+.modal-icon.success{background:#DFF3E4;color:var(--green)}
+.modal-icon.error{background:#FBE1DF;color:var(--red)}
+.modal-title{font-size:17px;font-weight:800;color:var(--forest-deep);margin:0 0 8px}
+.modal-message{font-size:13.5px;color:var(--ink-soft);margin:0 0 20px;line-height:1.5}
+.modal-close{display:none}
+.modal-close.show{display:inline-block}
+.exporting .diagram-card{position:static !important;top:auto !important}
+@media(max-width:960px){main.layout{grid-template-columns:1fr}.diagram-card{position:static !important;top:auto;order:2}.dimensions{order:1}}
+@media(max-width:640px){.question{grid-template-columns:1fr}.toggle{height:44px}.toggle button{font-size:15px}}
+@media(max-width:480px){h1{font-size:21px}.lgu-field{min-width:0;width:100%}.app{padding:18px 14px 44px}}
 </style>
 </head>
-
 <body>
 <div class="app" id="systemContainer">
 
-  <header class="top">
-    <div>
-      <p class="brand-eyebrow">QC VLR Inception Workshop</p>
-      <h1>SDG 5Ps Audit Tool</h1>
-      <p class="subtitle">
-        The SDG 5Ps Audit Tool is a matrix designed to evaluate the velocity and direction of
-        progress across the 2030 Agenda's core pillars in Quezon City. Tailored for the
-        Voluntary Local Review (VLR) process, this matrix aids in measuring trajectory,
-        identifying bottlenecks, and ensuring data-driven decision-making across all districts
-        and local communities.
-      </p>
-    </div>
-
-    <div class="lgu-field">
-      <label for="pillarSelect">Sector:</label>
-      <select id="pillarSelect">
-        <option value="">Select a Sector…</option>
-        <option value="People">Social</option>
-        <option value="Planet">Economic</option>
-        <option value="Prosperity">Environmental</option>
-        <option value="Peace and Partnership">Infrastructure</option>
-        <option value="Peace and Partnership">Institutional</option>
-      </select>
-
-      <label for="lguName">Name of Office/Department:</label>
-      <input id="lguName" type="text" />
-    </div>
-  </header>
-
-  <div class="toolbar">
-    <div class="instructions">
-      <p class="instr-title">Instructions</p>
-      <p class="instr-body">
-        The Tool covers the <strong>five (5) pillars</strong> of Sustainable Development:
-        <strong>People, Planet, Prosperity, Peace, and Partnerships.</strong>
-        Each dimension contains <strong>five (5) benchmark criteria/considerations</strong>
-        aligned with local implementation strategies. Participants will assess the
-        trend/trajectory of each criterion over time within their barangay-/district-/city-level
-        sector using this scale:
-      </p>
-
-      <ul class="instr-scale">
-        <li><strong>A: On Track</strong> — The desired progress is met in terms of the national/local target.</li>
-        <li><strong>B: Progressing</strong> — There is an upward trend towards the goal, but has not achieved the target/indicator yet.</li>
-        <li><strong>C: Regressing</strong> — There is a downward trend towards the goal or target, and needs acceleration to achieve the target/indicator.</li>
-      </ul>
-    </div>
+<header class="top">
+  <div>
+    <p class="brand-eyebrow">QC VLR Inception Workshop</p>
+    <h1>SDG 5Ps Audit Tool</h1>
+    <p class="subtitle">
+      Ang SDG 5Ps Audit Tool ay isang matrix na ginagamit upang suriin ang bilis at direksyon ng pag-unlad ng Quezon City batay sa mga pangunahing haligi ng 2030 Agenda. Binuo ito bilang bahagi ng Voluntary Local Review (VLR) Process upang masukat ang pag-unlad, matukoy ang mga hadlang o problemang kailangang tugunan, at makatulong sa paggawa ng mga desisyong batay sa datos sa iba't ibang distrito at lokal na komunidad.
+      <span class="en">The SDG 5Ps Audit Tool is a matrix designed to evaluate the velocity and direction of progress across the 2030 Agenda's core pillars in Quezon City. Tailored for the Voluntary Local Review (VLR) process, this matrix aids in measuring trajectory, identifying bottlenecks, and ensuring data-driven decision-making across all districts and local communities.</span>
+    </p>
   </div>
-
-  <main class="layout">
-    <div class="diagram-card">
-      <div class="diagram-wrap">
-        <svg id="diagramSvg" viewBox="0 0 620 620" xmlns="http://www.w3.org/2000/svg"></svg>
-      </div>
-
-      <div class="legend">
-        <div class="legend-item"><span class="legend-swatch" style="background:var(--green)"></span>A — On Track</div>
-        <div class="legend-item"><span class="legend-swatch" style="background:var(--yellow)"></span>B — Progressing</div>
-        <div class="legend-item"><span class="legend-swatch" style="background:var(--red)"></span>C — Regressing</div>
-        <div class="legend-item"><span class="legend-swatch" style="background:var(--unrated)"></span>Unrated</div>
-      </div>
-
-      <div class="score-summary" id="scoreSummary"></div>
-    </div>
-
-    <div class="dimensions" id="dimensionsRoot"></div>
-  </main>
-
-  <div class="toolbar-actions" id="toolbarActions">
-    <button class="reset-btn primary-btn" id="saveAllBtn">Save Matrix</button>
-    <button class="reset-btn" id="resetBtn">Reset</button>
+  <div class="lgu-field">
+    <label for="pillarSelect">Sektor: <i>(Sector)</i></label>
+    <select id="pillarSelect">
+      <option value="">Pumili ng Sektor… (Select a Sector)</option>
+      <option value="Social">Social</option>
+      <option value="Economic">Economic</option>
+      <option value="Environmental">Environmental</option>
+      <option value="Infrastructure">Infrastructure</option>
+      <option value="Institutional">Institutional</option>
+    </select>
+    <label for="lguName">Pangalan ng Opisina/Departamento: <i>(Name of Office/Department)</i></label>
+    <input id="lguName" type="text" />
   </div>
+</header>
 
-  <footer class="note">
-    Quezon City Planning and Development Department
-  </footer>
-
-  <!-- Save status modal -->
-  <div class="modal-overlay" id="statusModal" hidden>
-    <div class="modal-box">
-      <div class="modal-icon loading" id="modalIcon"><div class="spinner"></div></div>
-      <p class="modal-title" id="modalTitle">Saving…</p>
-      <p class="modal-message" id="modalMessage">Please wait while your entry is saved.</p>
-      <button class="reset-btn primary-btn modal-close" id="modalCloseBtn">Close</button>
-    </div>
+<div class="toolbar">
+  <div class="instructions">
+    <p class="instr-title">Panuto <i style="font-weight:400;color:var(--ink-soft)">(Instructions)</i></p>
+    <p class="instr-body">
+      Saklaw ng Tool ang <strong>limang (5) pangunahing haligi</strong> ng Sustainable Development: <strong>People, Planet, Prosperity, Peace, at Partnerships.</strong> Bawat dimensyon ay may <strong>limang (5) pamantayan o konsiderasyon</strong> na nakaayon sa mga lokal na estratehiya sa pagpapatupad. Susuriin ng mga kalahok ang trend o direksyon ng pag-unlad ng bawat pamantayan sa paglipas ng panahon sa antas ng kanilang barangay, distrito, o lungsod, gamit ang sumusunod na scale:
+      <span class="en">The Tool covers the five (5) pillars of Sustainable Development: People, Planet, Prosperity, Peace, and Partnerships. Each dimension contains five (5) benchmark criteria/considerations aligned with local implementation strategies. Participants will assess the trend/trajectory of each criterion over time within their barangay-/district-/city-level sector using this scale:</span>
+    </p>
+    <ul class="instr-scale">
+      <li><strong>A: On Track</strong> — Nakakamit ang inaasahang pag-unlad batay sa itinakdang pambansa o lokal na target.<span class="en">The desired progress is met in terms of the national/local target.</span></li>
+      <li><strong>B: Progressing</strong> — May nakikitang pag-unlad tungo sa layunin, ngunit hindi pa nakakamit ang itinakdang target o indicator.<span class="en">There is an upward trend towards the goal, but has not achieved the target/indicator yet.</span></li>
+      <li><strong>C: Regressing</strong> — May nakikitang pag-atras patungo sa layunin o target at kailangang pabilisin ang mga hakbang upang makamit ang itinakdang target o indicator.<span class="en">There is a downward trend towards the goal or target, and needs acceleration to achieve the target/indicator.</span></li>
+    </ul>
   </div>
+</div>
+
+<main class="layout">
+  <div class="diagram-card">
+    <div class="diagram-wrap"><svg id="diagramSvg" viewBox="0 0 620 620" xmlns="http://www.w3.org/2000/svg"></svg></div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--green)"></span>A — On Track</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--yellow)"></span>B — Progressing</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--red)"></span>C — Regressing</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--unrated)"></span>Unrated</div>
+    </div>
+    <div class="score-summary" id="scoreSummary"></div>
+  </div>
+  <div class="dimensions" id="dimensionsRoot"></div>
+</main>
+
+<div class="toolbar-actions" id="toolbarActions">
+  <button class="reset-btn primary-btn" id="saveAllBtn">Save the Matrix</button>
+  <button class="reset-btn" id="resetBtn">Reset</button>
+</div>
+
+<footer class="note">Quezon City Planning and Development Department</footer>
+
+<div class="modal-overlay" id="statusModal" hidden>
+  <div class="modal-box">
+    <div class="modal-icon loading" id="modalIcon"><div class="spinner"></div></div>
+    <p class="modal-title" id="modalTitle">Sine-save…</p>
+    <p class="modal-message" id="modalMessage">Please wait while your entry is saved.</p>
+    <button class="reset-btn primary-btn modal-close" id="modalCloseBtn">Close</button>
+  </div>
+</div>
 
 </div>
 
-<!-- PNG capture library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 <script>
 (function(){
+const COLORS={A:'#2E9E4F',B:'#F0BF2C',C:'#DE4B45',U:'#DEDBCC'};
+const N_PILLARS=5;
+const SWATCHES=['#7BB9A8','#C9A15A','#8FA6C9','#A98FC9','#8FBF7B'];
 
-  const COLORS = {A:'#2E9E4F',B:'#F0BF2C',C:'#DE4B45',U:'#DEDBCC'};
+const DIMENSIONS=[
+{id:'acc',label:'PEOPLE',index:0,questions:[
+{tl:'Pagpapalawak ng saklaw ng social protection, pagbabawas ng iba\u2019t ibang anyo ng kahirapan, at pagpapalakas ng mga sistemang nagbibigay ng suportang pangkabuhayan sa mga mahihirap at bulnerableng pamilya.',en:'Expanding social protection coverage, reducing multi-dimensional poverty, and strengthening economic support systems for poor and vulnerable households.'},
+{tl:'Pagtitiyak ng pantay na access sa dekalidad na serbisyong pangkalusugan, pag-iwas sa mga sakit, serbisyong pangkalusugan para sa reproductive health, suporta para sa mental health, at mga programang pangkalusugan at kagalingan ng komunidad para sa lahat ng edad.',en:'Ensuring equitable access to quality healthcare services, disease prevention, reproductive health, mental health support, and community wellness programs across all ages.'},
+{tl:'Pagbibigay ng accessible, inklusibo, at pantay na pampublikong edukasyon, pangangalaga at pagkatuto para sa mga batang nasa murang edad, teknikal-bokasyonal na pagsasanay, at mga oportunidad para sa patuloy na pagkatuto sa lahat ng yugto ng buhay.',en:'Delivering accessible, inclusive, and equitable public education, early childhood care, technical-vocational training, and lifelong learning opportunities.'},
+{tl:'Pag-aalis ng diskriminasyon at karahasan batay sa kasarian, pagbibigay-kapangyarihan sa kababaihan at mga batang babae, at pagtitiyak na isinasaalang-alang ang gender sa lokal na pagpaplano at pamumuno.',en:'Eliminating gender-based discrimination and violence, empowering women and girls, and ensuring gender-responsive local planning and leadership.'},
+{tl:'Pagbibigay ng ligtas, abot-kaya, at socialized housing, pagtitiyak ng seguridad sa paninirahan at karapatan sa lupa, pag-iwas sa hindi makatarungang pagpapaalis o paglilipat ng mga residente, at pagpapalawak ng access sa mga pangunahing serbisyo at ligtas na pampublikong espasyo.',en:'Providing safe, affordable, and socialized housing, securing land tenure, preventing unjust displacement, and expanding access to basic utilities and safe social spaces.'}]},
+{id:'cea',label:'PLANET',index:1,questions:[
+{tl:'Pagtitipid at wastong paggamit ng tubig sa lokal na komunidad, pagpapalawak ng access sa malinis na tubig, maayos na pamamahala ng septage (nilalaman ng septic tank) at wastewater (maruming tubig), at pangangalaga at paglilinis ng mga lokal na ilog, sapa, creek, at iba pang daluyan ng tubig sa lungsod.',en:'Local water conservation, expansion of clean water access, proper septage/wastewater management, and the protection and cleanup of local rivers, creeks, and urban waterways.'},
+{tl:'Pagsunod sa sustainable green building standards, pagpapalawak ng mga daanan para sa mga naglalakad at active mobility networks, pagdaragdag ng mga accessible na green park, at pagbuo ng mga komunidad na mas matatag sa mga sakuna.',en:'Sustainable green building standards, expanding pedestrian pathways and active mobility networks, increasing accessible green parks, and developing disaster-resilient communities.'},
+{tl:'Pagbabawas ng paggamit ng single-use plastics, pagpapatupad ng tamang paghihiwalay ng solid waste at composting, at pagtataguyod ng pagbabawas, pagre-recycle, at muling paggamit ng mga basura sa mga kabahayan at lokal na negosyo.',en:'Reducing single-use plastics, enforcing solid waste segregation and composting, and promoting waste reduction, recycling, and re-use practices across households and local businesses.'},
+{tl:'Pagpapatupad ng mga lokal na plano para sa climate adaptation at mitigation, pagbabawas ng carbon emissions, paggamit ng renewable energy sa mga pampublikong gusali at kabahayan, at pagpapalakas ng kahandaan ng komunidad sa mga sakuna.',en:'Implementing local climate adaptation and mitigation plans, reducing carbon emissions, adopting renewable energy sources in public and residential spaces, and strengthening community disaster preparedness.'},
+{tl:'Pangangalaga sa urban biodiversity, pagpapalawak ng urban agriculture at community gardens, pagtatanim ng mga katutubong puno, at pangangalaga sa mga natural na open space at green corridors sa lokal na komunidad.',en:'Urban biodiversity preservation, expanding urban agriculture and community gardens, planting native trees, and protecting local natural open spaces and green corridors.'}]},
+{id:'pss',label:'PROSPERITY',index:2,questions:[
+{tl:'Pagpapalawak ng mga oportunidad sa trabaho sa lokal na komunidad, pagsuporta sa micro, small, and medium enterprises (MSMEs), pagtitiyak ng makatarungang sahod, at pagtataguyod ng ligtas at pormal na kondisyon sa trabaho para sa lahat.',en:'Expanding local job opportunities, supporting micro, small, and medium enterprises (MSMEs), ensuring fair wages, and promoting safe, formal work conditions for all citizens.'},
+{tl:'Pagpapalawak ng maaasahan, abot-kaya, at malinis na access sa enerhiya upang matugunan ang pangangailangan ng mga lokal na negosyo, pampublikong pamilihan, commercial corridors, at mga lugar na nagsisilbing sentro ng gawaing pangkabuhayan ng komunidad.',en:'Expanding reliable, affordable, and clean energy access to power local businesses, public markets, commercial corridors, and community economic spaces.'},
+{tl:'Pagpapaunlad ng matatag na imprastraktura, pagpapalawak ng access sa digital na teknolohiya at digital literacy, pagsuporta sa mga lokal na industriya, at paggamit ng teknolohiya sa mga serbisyong pangkabuhayan.',en:'Building resilient physical infrastructure, expanding digital access and digital literacy, supporting local industries, and integrating technology into economic services.'},
+{tl:'Pagpapaunlad ng magkakaugnay na sentrong pangkomersiyo sa lokal na komunidad, accessible na pampublikong pamilihan, mga opsyon para sa active mobility ng mga manggagawa at mamimili, at mga sustainable na lugar para sa gawaing pangkabuhayan sa lungsod.',en:'Fostering well-connected local commercial hubs, accessible public markets, active mobility options for workers and consumers, and sustainable urban economic spaces.'},
+{tl:'Pagtulong sa mga lokal na negosyo na lumipat tungo sa sustainable na mga gawain, paglikha ng mga green jobs, at pagbibigay ng skills training na naaayon sa mga umuusbong na digital at sustainable na sektor ng ekonomiya.',en:'Transitioning local enterprises toward sustainable practices, creating green jobs, and providing skills training aligned with emerging digital and sustainable economic sectors.'}]},
+{id:'wr',label:'PEACE',index:3,questions:[
+{tl:'Pagbabawas ng krimen sa lokal na komunidad, pag-iwas sa lahat ng uri ng karahasan, pagprotekta sa mga bulnerableng grupo laban sa pang-aabuso, at pagtataguyod ng ligtas at mapayapang mga komunidad.',en:'Reducing local crime, preventing violence in all forms, protecting vulnerable groups from abuse, and fostering safe, peaceful neighborhoods.'},
+{tl:'Pagpapalawak ng patas, madaling ma-access, at napapanahong mga mekanismo para sa hustisya, kabilang ang mga sistema ng pag-aayos ng alitan sa antas ng komunidad at legal aid para sa mga residenteng nangangailangan.',en:'Expanding fair, accessible, and timely justice mechanisms, including community-level dispute resolution systems and legal aid for underprivileged residents.'},
+{tl:'Pagtataguyod ng mataas na pamantayan ng integridad sa pampublikong serbisyo, paglaban sa korapsyon, pagpapatupad ng transparency sa pamamagitan ng open data, at pagpapanatili ng pananagutan sa lokal na pamamahala.',en:'Upholding high standards of public integrity, combating corruption, enforcing open-data transparency, and maintaining accountability in local governance.'},
+{tl:'Pagtataguyod ng mga proseso ng pagdedesisyon na may pakikilahok ng komunidad, at pagtitiyak ng representasyon ng civil society, mga marginalized na grupo, at mga mamamayan sa pagbuo ng mga lokal na polisiya.',en:'Fostering participatory decision-making processes, ensuring representation of civil society, marginalized groups, and citizens in local policy formulation.'},
+{tl:'Pagprotekta sa mga karapatang pantao, pagpapanatili ng mga pangunahing kalayaan, at pagtitiyak ng karapatan ng lahat sa pagkakaroon ng legal na pagkakakilanlan, tulad ng pagpaparehistro ng kapanganakan at mga rekord ng civil status.',en:'Safeguarding human rights, protecting fundamental freedoms, and ensuring universal legal identity rights (such as birth registration and civil status records) for all citizens.'}]},
+{id:'ntb',label:'PARTNERSHIPS',index:4,questions:[
+{tl:'Pagpapatatag ng mga lokal na ugnayan at pakikipagtulungan sa pagitan ng lokal na pamahalaan, private sector, non-government organizations (NGOs), at mga civil society group upang isulong ang mga inisyatiba para sa sustainable development.',en:'Fostering strong local partnerships between the local government, private sector, non-government organizations, and civil society groups to drive sustainable development initiatives.'},
+{tl:'Pagtiyak sa pagkuha at wastong paggamit ng mga pondong pinansyal, grants, at investments mula sa lokal, pambansa, at internasyonal na mga mapagkukunan upang pondohan ang mga proyektong pangkaunlaran sa antas ng komunidad.',en:'Securing and effectively managing local, national, and international financial resources, grants, and investments to fund community-level development projects.'},
+{tl:'Pagpapalakas ng kakayahan ng mga lokal na institusyon, pagbabahagi ng mga technological tools, at pakikipagtulungan sa mga institusyong pang-akademiko at pananaliksik para sa lokal na inobasyon at pagpapaunlad ng mga kasanayan.',en:'Building local institutional capacities, sharing technological tools, and collaborating with academic and research institutions for local innovation and skill development.'},
+{tl:'Pagkakaroon ng pagkakaugnay ng mga plano sa pagpapaunlad sa antas ng lokal, barangay, at lungsod sa mga pambansa at pandaigdigang layunin para sa sustainable development upang matiyak ang maayos na pagpapatupad at pagkakaugnay ng mga polisiya.',en:'Aligning local, barangay, and city-wide development plans with national and global sustainability goals to ensure seamless implementation and policy integration.'},
+{tl:'Pagbuo ng matatag na sistema para sa pangangalap ng lokal na datos, pagpapalakas ng kakayahan sa statistical data, at pagtataguyod ng transparent na monitoring at reporting na may pakikilahok ng iba\u2019t ibang sektor upang masubaybayan at maiulat ang pag-unlad tungo sa mga SDG at mga lokal na bisyon at layunin sa pagpapaunlad.',en:'Building robust local data collection systems, enhancing statistical capacity, and enabling transparent, multi-sectoral monitoring and reporting of progress toward the SDGs and local development vision & goals.'}]}
+];
 
-  const N_PILLARS = 5;
+const state={};
+DIMENSIONS.forEach(d=>{state[d.id]=new Array(5).fill(null)});
 
-  const SWATCHES = ['#7BB9A8','#C9A15A','#8FA6C9','#A98FC9','#8FBF7B'];
+/* ---------- SVG DIAGRAM ---------- */
+const CENTER=[310,310],R=190,LABEL_R=255;
+const toRad=d=>d*Math.PI/180;
+const VERTS=Array.from({length:N_PILLARS},(_,i)=>{const a=toRad(-90+i*(360/N_PILLARS));return[CENTER[0]+R*Math.cos(a),CENTER[1]+R*Math.sin(a)]});
+const lerp=(f,t,k)=>[f[0]+(t[0]-f[0])*k,f[1]+(t[1]-f[1])*k];
+const pts=a=>a.map(p=>p[0].toFixed(2)+','+p[1].toFixed(2)).join(' ');
+function ringPolygon(pA,pB,k){const so=(6-k)/5,si=(5-k)/5;return[lerp(CENTER,pA,si),lerp(CENTER,pA,so),lerp(CENTER,pB,so),lerp(CENTER,pB,si)]}
+function ringNumberPos(pA,pB,k){const so=(6-k)/5,si=(5-k)/5;return lerp(CENTER,lerp(pA,pB,.5),(so+si)/2)}
+function labelPos(i){const a=toRad(-90+(i+.5)*(360/N_PILLARS));return[CENTER[0]+LABEL_R*Math.cos(a),CENTER[1]+LABEL_R*Math.sin(a)]}
+function svgEl(n,attrs){const e=document.createElementNS('http://www.w3.org/2000/svg',n);for(const k in attrs)e.setAttribute(k,attrs[k]);return e}
+const svg=document.getElementById('diagramSvg');
 
-  const LABELS = {A:'Progressing',B:'Stagnating',C:'Regressing',U:'Unrated'};
-
-  const DIMENSIONS = [
-    {
-      id:'acc',
-      label:'PEOPLE',
-      index:0,
-      questions:[
-        {en:'Expanding social protection coverage, reducing multi-dimensional poverty, and strengthening economic support systems for poor and vulnerable households.'},
-        {en:'Ensuring equitable access to quality healthcare services, disease prevention, reproductive health, mental health support, and community wellness programs across all ages.'},
-        {en:'Delivering accessible, inclusive, and equitable public education, early childhood care, technical- vocational training, and lifelong learning opportunities.'},
-        {en:'Eliminating gender-based discrimination and violence, empowering women and girls, and ensuring gender-responsive local planning and leadership.'},
-        {en:'Providing safe, affordable, and socialized housing, securing land tenure, preventing unjust displacement, and expanding access to basic utilities and safe social spaces.'}
-      ]
-    },
-    {
-      id:'cea',
-      label:'PLANET',
-      index:1,
-      questions:[
-        {en:'Local water conservation, expansion of clean water access, proper septage/wastewater management, and the protection and cleanup of local rivers, creeks, and urban waterways.'},
-        {en:'Sustainable green building standards, expanding pedestrian pathways and active mobility networks, increasing accessible green parks, and developing disaster-resilient communities.'},
-        {en:'Reducing single-use plastics, enforcing solid waste segregation and composting, and promoting waste reduction, recycling, and re-use practices across households and local businesses.'},
-        {en:'Implementing local climate adaptation and mitigation plans, reducing carbon emissions, adopting renewable energy sources in public and residential spaces, and strengthening community disaster preparedness.'},
-        {en:'Urban biodiversity preservation, expanding urban agriculture and community gardens, planting native trees, and protecting local natural open spaces and green corridors.'}
-      ]
-    },
-    {
-      id:'pss',
-      label:'PROSPERITY',
-      index:2,
-      questions:[
-        {en:'Expanding local job opportunities, supporting micro, small, and medium enterprises (MSMEs), ensuring fair wages, and promoting safe, formal work conditions for all citizens.'},
-        {en:'Expanding reliable, affordable, and clean energy access to power local businesses, public markets, commercial corridors, and community economic spaces.'},
-        {en:'Building resilient physical infrastructure, expanding digital access and digital literacy, supporting local industries, and integrating technology into economic services.'},
-        {en:'Fostering well-connected local commercial hubs, accessible public markets, active mobility options for workers and consumers, and sustainable urban economic spaces.'},
-        {en:'Transitioning local enterprises toward sustainable practices, creating green jobs, and providing skills training aligned with emerging digital and sustainable economic sectors.'}
-      ]
-    },
-    {
-      id:'wr',
-      label:'PEACE',
-      index:3,
-      questions:[
-        {en:'Reducing local crime, preventing violence in all forms, protecting vulnerable groups from abuse, and fostering safe, peaceful neighborhoods.'},
-        {en:'Expanding fair, accessible, and timely justice mechanisms, including community-level dispute resolution systems and legal aid for underprivileged residents.'},
-        {en:'Upholding high standards of public integrity, combating corruption, enforcing open-data transparency, and maintaining accountability in local governance.'},
-        {en:'Fostering participatory decision-making processes, ensuring representation of civil society, marginalized groups, and citizens in local policy formulation.'},
-        {en:'Safeguarding human rights, protecting fundamental freedoms, and ensuring universal legal identity rights (such as birth registration and civil status records) for all citizens.'}
-      ]
-    },
-    {
-      id:'ntb',
-      label:'PARTNERSHIPS',
-      index:4,
-      questions:[
-        {en:'Fostering strong local partnerships between the local government, private sector, non-government organizations, and civil society groups to drive sustainable development initiatives.'},
-        {en:'Securing and effectively managing local, national, and international financial resources, grants, and investments to fund community-level development projects.'},
-        {en:'Building local institutional capacities, sharing technological tools, and collaborating with academic and research institutions for local innovation and skill development.'},
-        {en:'Aligning local, barangay, and city-wide development plans with national and global sustainability goals to ensure seamless implementation and policy integration.'},
-        {en:'Building robust local data collection systems, enhancing statistical capacity, and enabling transparent, multi-sectoral monitoring and reporting of progress toward the SDGs and local development vision & goals.'}
-      ]
-    }
-  ];
-
-  const state = {};
-  DIMENSIONS.forEach(d => {
-    state[d.id] = new Array(5).fill(null);
+function buildDiagram(){
+  svg.innerHTML='';
+  svg.appendChild(svgEl('polygon',{points:pts(VERTS),fill:COLORS.U}));
+  DIMENSIONS.forEach(dim=>{
+    const pA=VERTS[dim.index],pB=VERTS[(dim.index+1)%N_PILLARS];
+    for(let k=1;k<=5;k++)svg.appendChild(svgEl('polygon',{points:pts(ringPolygon(pA,pB,k)),fill:COLORS.U,stroke:'#fff','stroke-width':1.5,id:'poly-'+dim.id+'-'+k}));
   });
-
-  /* ---------- SVG DIAGRAM ---------- */
-
-  const CENTER = [310,310];
-  const R = 190;
-  const LABEL_R = 255;
-
-  function toRad(deg){
-    return deg * Math.PI / 180;
-  }
-
-  function vertexPoint(i){
-    const angle = toRad(-90 + i * (360 / N_PILLARS));
-    return [
-      CENTER[0] + R * Math.cos(angle),
-      CENTER[1] + R * Math.sin(angle)
-    ];
-  }
-
-  const VERTS = Array.from({length:N_PILLARS},(_,i) => vertexPoint(i));
-
-  function lerpPoint(from,to,t){
-    return [
-      from[0] + (to[0]-from[0])*t,
-      from[1] + (to[1]-from[1])*t
-    ];
-  }
-
-  function pointsToStr(pts){
-    return pts.map(p => p[0].toFixed(2)+','+p[1].toFixed(2)).join(' ');
-  }
-
-  function ringPolygon(pA,pB,k){
-    const so = (6-k)/5;
-    const si = (5-k)/5;
-
-    const p1 = lerpPoint(CENTER,pA,si);
-    const p2 = lerpPoint(CENTER,pA,so);
-    const p3 = lerpPoint(CENTER,pB,so);
-    const p4 = lerpPoint(CENTER,pB,si);
-
-    return [p1,p2,p3,p4];
-  }
-
-  function ringNumberPos(pA,pB,k){
-    const so = (6-k)/5;
-    const si = (5-k)/5;
-    const t = (so+si)/2;
-    const mid = lerpPoint(pA,pB,.5);
-
-    return lerpPoint(CENTER,mid,t);
-  }
-
-  function labelPos(dimIndex){
-    const angle = toRad(-90 + (dimIndex + .5) * (360 / N_PILLARS));
-
-    return [
-      CENTER[0] + LABEL_R * Math.cos(angle),
-      CENTER[1] + LABEL_R * Math.sin(angle)
-    ];
-  }
-
-  function svgEl(name,attrs){
-    const el = document.createElementNS('http://www.w3.org/2000/svg',name);
-
-    for(const k in attrs){
-      el.setAttribute(k,attrs[k]);
-    }
-
-    return el;
-  }
-
-  const svg = document.getElementById('diagramSvg');
-
-  function buildDiagram(){
-    svg.innerHTML = '';
-
-    svg.appendChild(
-      svgEl('polygon',{
-        points:pointsToStr(VERTS),
-        fill:COLORS.U
-      })
-    );
-
-    DIMENSIONS.forEach(dim => {
-
-      const pA = VERTS[dim.index];
-      const pB = VERTS[(dim.index+1)%N_PILLARS];
-
-      for(let k=1;k<=5;k++){
-
-        const pts = ringPolygon(pA,pB,k);
-
-        const poly = svgEl('polygon',{
-          points:pointsToStr(pts),
-          fill:COLORS.U,
-          stroke:'#ffffff',
-          'stroke-width':1.5,
-          id:'poly-'+dim.id+'-'+k
-        });
-
-        svg.appendChild(poly);
-      }
-    });
-
-    DIMENSIONS.forEach(dim => {
-
-      const pA = VERTS[dim.index];
-      const pB = VERTS[(dim.index+1)%N_PILLARS];
-
-      for(let k=1;k<=5;k++){
-
-        const p = ringNumberPos(pA,pB,k);
-
-        const t = svgEl('text',{
-          x:p[0],
-          y:p[1]+4,
-          'text-anchor':'middle',
-          'font-size':'12',
-          'font-weight':'700',
-          fill:'#1E2A22',
-          'font-family':'Arial, sans-serif'
-        });
-
-        t.textContent = k;
-        svg.appendChild(t);
-      }
-    });
-
-    VERTS.forEach(v => {
-
-      svg.appendChild(
-        svgEl('line',{
-          x1:CENTER[0],
-          y1:CENTER[1],
-          x2:v[0],
-          y2:v[1],
-          stroke:'#111',
-          'stroke-width':4
-        })
-      );
-    });
-
-    svg.appendChild(
-      svgEl('polygon',{
-        points:pointsToStr(VERTS),
-        fill:'none',
-        stroke:'#111',
-        'stroke-width':5
-      })
-    );
-
-    DIMENSIONS.forEach(dim => {
-
-      const p = labelPos(dim.index);
-
-      const t = svgEl('text',{
-        x:p[0],
-        y:p[1],
-        'text-anchor':'middle',
-        'font-size':'13',
-        'font-weight':'800',
-        fill:'#123D28',
-        'letter-spacing':'.02em',
-        'font-family':'Arial, sans-serif'
-      });
-
-      const words = dim.label.toUpperCase().split(' ');
-
-      words.forEach((w,i) => {
-
-        const tspan = svgEl('tspan',{
-          x:p[0],
-          dy:i===0 ? 0 : 14
-        });
-
-        tspan.textContent = w;
-        t.appendChild(tspan);
-      });
-
-      svg.appendChild(t);
-    });
-  }
-
-  function updateDiagram(){
-
-    DIMENSIONS.forEach(dim => {
-
-      for(let k=1;k<=5;k++){
-
-        const val = state[dim.id][k-1];
-        const color = val ? COLORS[val] : COLORS.U;
-
-        const poly = document.getElementById('poly-'+dim.id+'-'+k);
-
-        if(poly){
-          poly.setAttribute('fill',color);
-        }
-      }
-    });
-
-    updateScoreSummary();
-  }
-
-  function updateScoreSummary(){
-
-    const root = document.getElementById('scoreSummary');
-    root.innerHTML = '';
-
-    DIMENSIONS.forEach(dim => {
-
-      const counts = {A:0,B:0,C:0,U:0};
-
-      state[dim.id].forEach(v => {
-        counts[v || 'U']++;
-      });
-
-      const row = document.createElement('div');
-      row.className = 'score-row';
-
-      const bar = ['A','B','C','U']
-        .map(k => counts[k]
-          ? '<span style="width:'+(counts[k]/5*100)+'%;background:'+COLORS[k]+'"></span>'
-          : ''
-        )
-        .join('');
-
-      row.innerHTML =
-        '<span class="dim-name">'+dim.label+'</span>' +
-        '<div class="score-bar">'+bar+'</div>';
-
-      root.appendChild(row);
-    });
-  }
-
-  /* ---------- CONTROLS ---------- */
-
-  const dimensionsRoot = document.getElementById('dimensionsRoot');
-
-  function buildControls(){
-
-    dimensionsRoot.innerHTML = '';
-
-    DIMENSIONS.forEach((dim,dimIdx) => {
-
-      const section = document.createElement('section');
-      section.className = 'dimension';
-
-      const header = document.createElement('div');
-      header.className = 'dim-header';
-
-      header.innerHTML =
-        '<span class="swatch" style="background:'+
-        SWATCHES[dimIdx % SWATCHES.length]+'"></span>' +
-        '<h2>'+dim.label+'</h2>' +
-        '<span class="dim-side">Pillar '+
-        (dimIdx+1)+' of '+DIMENSIONS.length+
-        '</span>';
-
-      section.appendChild(header);
-
-      dim.questions.forEach((q,idx) => {
-
-        const row = document.createElement('div');
-        row.className = 'question';
-
-        const qText = document.createElement('div');
-        qText.className = 'q-text';
-
-        qText.innerHTML =
-          '<span class="num">'+(idx+1)+'.</span>' +
-          escapeHtml(q.en) +
-          (q.tl ? '<span class="tl">'+escapeHtml(q.tl)+'</span>' : '');
-
-        row.appendChild(qText);
-
-        const toggle = document.createElement('div');
-        toggle.className = 'toggle';
-
-        ['A','B','C'].forEach(letter => {
-
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.textContent = letter;
-
-          btn.addEventListener('click',() => {
-
-            state[dim.id][idx] =
-              state[dim.id][idx] === letter
-                ? null
-                : letter;
-
-            refreshToggle(toggle,state[dim.id][idx]);
-
-            updateDiagram();
-          });
-
-          toggle.appendChild(btn);
-        });
-
-        row.appendChild(toggle);
-        section.appendChild(row);
-      });
-
-      dimensionsRoot.appendChild(section);
-    });
-  }
-
-  function refreshToggle(toggleEl,selected){
-
-    Array.from(toggleEl.children).forEach(btn => {
-
-      btn.className = '';
-
-      if(btn.textContent === selected){
-        btn.className = 'sel-'+selected;
-      }
-    });
-  }
-
-  function escapeHtml(str){
-
-    const div = document.createElement('div');
-    div.textContent = str || '';
-
-    return div.innerHTML;
-  }
-
-  function toFileName(str){
-
-    const cleaned = (str || '')
-      .trim()
-      .replace(/[\\/:*?"<>|]+/g,'')
-      .replace(/\s+/g,'_');
-
-    return cleaned || 'audit';
-  }
-
-  /* ---------- RESET ---------- */
-
-  document.getElementById('resetBtn')
-    .addEventListener('click',() => {
-
-      DIMENSIONS.forEach(d => {
-        state[d.id] = new Array(5).fill(null);
-      });
-
-      document.querySelectorAll('.toggle')
-        .forEach(t => refreshToggle(t,null));
-
-      updateDiagram();
-    });
-
-  /* ---------- GOOGLE APPS SCRIPT (Drive upload) ---------- */
-
-  const GOOGLE_SHEET_WEB_APP_URL =
-    'https://script.google.com/macros/s/AKfycbxYTTy69x-PWDVsRhanFqNzEz_LgQjPwmgyZqdwfS3TxnDcY3CjRNh3uQCfDzyoxb9UNg/exec';
-
-  function sheetConfigured(){
-    return !!GOOGLE_SHEET_WEB_APP_URL;
-  }
-
-  /* ---------- SAVE STATUS MODAL ---------- */
-
-  const statusModal = document.getElementById('statusModal');
-  const modalIcon = document.getElementById('modalIcon');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalMessage = document.getElementById('modalMessage');
-  const modalCloseBtn = document.getElementById('modalCloseBtn');
-
-  function showModal(kind,title,message){
-
-    modalIcon.className = 'modal-icon '+kind;
-
-    modalIcon.innerHTML =
-      kind === 'loading'
-        ? '<div class="spinner"></div>'
-        : (kind === 'success' ? '✓' : '✕');
-
-    modalTitle.textContent = title;
-    modalMessage.textContent = message;
-
-    modalCloseBtn.classList.toggle('show',kind !== 'loading');
-
-    statusModal.hidden = false;
-  }
-
-  function hideModal(){
-    statusModal.hidden = true;
-  }
-
-  modalCloseBtn.addEventListener('click',hideModal);
-
-  statusModal.addEventListener('click',(e) => {
-
-    if(
-      e.target === statusModal &&
-      modalCloseBtn.classList.contains('show')
-    ){
-      hideModal();
+  DIMENSIONS.forEach(dim=>{
+    const pA=VERTS[dim.index],pB=VERTS[(dim.index+1)%N_PILLARS];
+    for(let k=1;k<=5;k++){
+      const p=ringNumberPos(pA,pB,k);
+      const t=svgEl('text',{x:p[0],y:p[1]+4,'text-anchor':'middle','font-size':'12','font-weight':'700',fill:'#1E2A22','font-family':'Arial, sans-serif'});
+      t.textContent=k;svg.appendChild(t);
     }
   });
+  VERTS.forEach(v=>svg.appendChild(svgEl('line',{x1:CENTER[0],y1:CENTER[1],x2:v[0],y2:v[1],stroke:'#111','stroke-width':4})));
+  svg.appendChild(svgEl('polygon',{points:pts(VERTS),fill:'none',stroke:'#111','stroke-width':5}));
+  DIMENSIONS.forEach(dim=>{
+    const p=labelPos(dim.index);
+    const t=svgEl('text',{x:p[0],y:p[1],'text-anchor':'middle','font-size':'13','font-weight':'800',fill:'#123D28','letter-spacing':'.02em','font-family':'Arial, sans-serif'});
+    dim.label.toUpperCase().split(' ').forEach((w,i)=>{const s=svgEl('tspan',{x:p[0],dy:i===0?0:14});s.textContent=w;t.appendChild(s)});
+    svg.appendChild(t);
+  });
+}
 
-  /* ---------- PNG CAPTURE ---------- */
-
-  async function renderFullSystemCanvas(){
-
-    if(typeof html2canvas !== 'function'){
-      throw new Error(
-        'PNG capture library did not load. Please check your internet connection and reload the page.'
-      );
+function updateDiagram(){
+  DIMENSIONS.forEach(dim=>{
+    for(let k=1;k<=5;k++){
+      const v=state[dim.id][k-1],poly=document.getElementById('poly-'+dim.id+'-'+k);
+      if(poly)poly.setAttribute('fill',v?COLORS[v]:COLORS.U);
     }
+  });
+  updateScoreSummary();
+}
 
-    const container = document.getElementById('systemContainer');
+function updateScoreSummary(){
+  const root=document.getElementById('scoreSummary');root.innerHTML='';
+  DIMENSIONS.forEach(dim=>{
+    const c={A:0,B:0,C:0,U:0};
+    state[dim.id].forEach(v=>{c[v||'U']++});
+    const row=document.createElement('div');row.className='score-row';
+    const bar=['A','B','C','U'].map(k=>c[k]?'<span style="width:'+(c[k]/5*100)+'%;background:'+COLORS[k]+'"></span>':'').join('');
+    row.innerHTML='<span class="dim-name">'+dim.label+'</span><div class="score-bar">'+bar+'</div>';
+    root.appendChild(row);
+  });
+}
 
-    document.body.classList.add('exporting');
+/* ---------- CONTROLS ---------- */
+const dimensionsRoot=document.getElementById('dimensionsRoot');
+function escapeHtml(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
 
-    /*
-      Clone the complete system into a temporary off-screen
-      container. This prevents the capture from being affected
-      by sticky positioning or the current scroll position.
-    */
-    const clone = container.cloneNode(true);
-
-    clone.id = 'pngExportClone';
-
-    const cloneToolbar = clone.querySelector('#toolbarActions');
-    const cloneNote = clone.querySelector('#sharedNote');
-    const cloneModal = clone.querySelector('#statusModal');
-
-    if(cloneToolbar){ cloneToolbar.remove(); }
-    if(cloneNote){ cloneNote.remove(); }
-    if(cloneModal){ cloneModal.remove(); }
-
-    clone.querySelectorAll('button').forEach(btn => {
-      btn.style.pointerEvents = 'none';
-    });
-
-    /*
-      Make the clone wide enough to preserve the desktop layout
-      when the user is viewing the tool on a smaller screen.
-    */
-    clone.style.width = Math.max(container.scrollWidth,1240) + 'px';
-    clone.style.maxWidth = '1240px';
-    clone.style.margin = '0';
-    clone.style.position = 'absolute';
-    clone.style.left = '-100000px';
-    clone.style.top = '0';
-    clone.style.background = getComputedStyle(container).backgroundColor;
-
-    document.body.appendChild(clone);
-
-    /*
-      Copy the current input values because cloneNode does not
-      reliably copy the live value of form controls.
-    */
-    const originalInput = document.getElementById('lguName');
-    const clonedInput = clone.querySelector('#lguName');
-
-    if(originalInput && clonedInput){
-      clonedInput.value = originalInput.value;
-    }
-
-    const originalSelect = document.getElementById('pillarSelect');
-    const clonedSelect = clone.querySelector('#pillarSelect');
-
-    if(originalSelect && clonedSelect){
-      clonedSelect.value = originalSelect.value;
-    }
-
-    await new Promise(resolve => requestAnimationFrame(resolve));
-
-    try{
-
-      const canvas = await html2canvas(clone,{
-        backgroundColor:'#F6F4EC',
-        scale:2,
-        useCORS:true,
-        allowTaint:false,
-        logging:false,
-        imageTimeout:15000,
-        scrollX:0,
-        scrollY:0,
-        windowWidth:clone.scrollWidth,
-        windowHeight:clone.scrollHeight
+function buildControls(){
+  dimensionsRoot.innerHTML='';
+  DIMENSIONS.forEach((dim,di)=>{
+    const section=document.createElement('section');section.className='dimension';
+    const header=document.createElement('div');header.className='dim-header';
+    header.innerHTML='<span class="swatch" style="background:'+SWATCHES[di%SWATCHES.length]+'"></span><h2>'+dim.label+'</h2><span class="dim-side">PILLAR '+(di+1)+' OF '+DIMENSIONS.length+'</span>';
+    section.appendChild(header);
+    dim.questions.forEach((q,idx)=>{
+      const row=document.createElement('div');row.className='question';
+      const qt=document.createElement('div');qt.className='q-text';
+      qt.innerHTML='<span class="num">'+(idx+1)+'.</span>'+escapeHtml(q.tl)+'<span class="en">'+escapeHtml(q.en)+'</span>';
+      row.appendChild(qt);
+      const toggle=document.createElement('div');toggle.className='toggle';
+      ['A','B','C'].forEach(letter=>{
+        const btn=document.createElement('button');btn.type='button';btn.textContent=letter;
+        btn.addEventListener('click',()=>{
+          state[dim.id][idx]=state[dim.id][idx]===letter?null:letter;
+          refreshToggle(toggle,state[dim.id][idx]);
+          updateDiagram();
+        });
+        toggle.appendChild(btn);
       });
-
-      return canvas;
-
-    }finally{
-
-      clone.remove();
-      document.body.classList.remove('exporting');
-    }
-  }
-
-  /* ---------- SAVE ENTRY AS PNG ---------- */
-
-  /* Downloads the rendered canvas to the respondent's device as a PNG. */
-  function downloadCanvasAsPng(canvas,fileName){
-
-    return new Promise((resolve,reject) => {
-
-      canvas.toBlob(blob => {
-
-        if(!blob){
-          reject(new Error('Could not create the PNG file.'));
-          return;
-        }
-
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.style.display = 'none';
-
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-
-        setTimeout(() => URL.revokeObjectURL(url),1500);
-
-        resolve();
-
-      },'image/png');
+      row.appendChild(toggle);section.appendChild(row);
     });
-  }
+    dimensionsRoot.appendChild(section);
+  });
+}
 
-  async function saveEntryAndReport(){
+function refreshToggle(el,sel){
+  Array.from(el.children).forEach(b=>{b.className=b.textContent===sel?'sel-'+sel:''});
+}
 
-    const btn = document.getElementById('saveAllBtn');
+function toFileName(s){
+  return (s||'').trim().replace(/[\\/:*?"<>|]+/g,'').replace(/\s+/g,'_')||'audit';
+}
 
-    const divisionName =
-      (document.getElementById('lguName').value || '').trim();
-
-    const pillarValue =
-      (document.getElementById('pillarSelect').value || '').trim();
-
-    if(!divisionName){
-
-      showModal(
-        'error',
-        'Missing Information',
-        'Please enter the Name of Office/Department before saving.'
-      );
-
-      return;
-    }
-
-    const originalLabel = btn.textContent;
-
-    btn.disabled = true;
-    btn.textContent = 'Saving…';
-
-    showModal(
-      'loading',
-      'Saving…',
-      'Rendering your matrix, downloading your copy, and uploading it to Google Drive. Please don\u2019t close this window.'
-    );
-
-    try{
-
-      /*
-        1. Render the complete system as PNG.
-        2. Download the PNG to the respondent's device (their copy).
-        3. Upload the same PNG to Google Drive through Apps Script.
-      */
-
-      const canvas = await renderFullSystemCanvas();
-
-      const pngFileName =
-        toFileName(divisionName) + '_SDG_5Ps_Audit.png';
-
-      /* Respondent copy first, so they always get it even if the upload fails. */
-      await downloadCanvasAsPng(canvas,pngFileName);
-
-      let driveSaved = false;
-      let driveError = null;
-
-      if(sheetConfigured()){
-
-        try{
-
-          const pngBase64 =
-            canvas.toDataURL('image/png').split('base64,')[1];
-
-          await fetch(GOOGLE_SHEET_WEB_APP_URL,{
-            method:'POST',
-            mode:'no-cors',
-            headers:{
-              'Content-Type':'text/plain;charset=utf-8'
-            },
-            body:JSON.stringify({
-              action:'saveFile',
-              fileType:'png',
-              fileName:pngFileName,
-              mimeType:'image/png',
-              pillar:pillarValue,
-              base64:pngBase64
-            })
-          });
-
-          driveSaved = true;
-
-        }catch(uploadErr){
-
-          console.error(uploadErr);
-          driveError = uploadErr;
-        }
-      }
-
-      if(driveSaved){
-
-        btn.textContent = 'Saved!';
-
-        showModal(
-          'success',
-          'Saved Successfully',
-          'Your matrix PNG was saved to Google Drive and a copy was downloaded to your device.'
-        );
-
-      }else if(driveError){
-
-        btn.textContent = originalLabel;
-
-        showModal(
-          'error',
-          'Downloaded, but Upload Failed',
-          'Your PNG copy was downloaded to your device, but it could not be uploaded to Google Drive. Please check your connection and press Save Matrix again.'
-        );
-
-      }else{
-
-        btn.textContent = originalLabel;
-
-        showModal(
-          'success',
-          'Downloaded',
-          'Your matrix PNG was downloaded to your device. Google Drive saving is not configured.'
-        );
-      }
-
-    }catch(err){
-
-      console.error(err);
-
-      showModal(
-        'error',
-        'Save Failed',
-        (err && err.message)
-          ? err.message
-          : 'Something went wrong while saving this entry. Please check your connection and try again.'
-      );
-
-      btn.textContent = originalLabel;
-
-    }finally{
-
-      setTimeout(() => {
-
-        btn.disabled = false;
-
-        if(btn.textContent === 'Saving…'){
-          btn.textContent = originalLabel;
-        }
-
-      },1500);
-    }
-  }
-
-  document.getElementById('saveAllBtn')
-    .addEventListener('click',saveEntryAndReport);
-
-  /* ---------- INIT ---------- */
-
-  buildDiagram();
-  buildControls();
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  DIMENSIONS.forEach(d=>{state[d.id]=new Array(5).fill(null)});
+  document.querySelectorAll('.toggle').forEach(t=>refreshToggle(t,null));
   updateDiagram();
+});
 
+/* ---------- GOOGLE APPS SCRIPT (Drive upload) ---------- */
+const GOOGLE_SHEET_WEB_APP_URL='https://script.google.com/macros/s/AKfycbxYTTy69x-PWDVsRhanFqNzEz_LgQjPwmgyZqdwfS3TxnDcY3CjRNh3uQCfDzyoxb9UNg/exec';
+const sheetConfigured=()=>!!GOOGLE_SHEET_WEB_APP_URL;
+
+/* ---------- MODAL ---------- */
+const statusModal=document.getElementById('statusModal'),modalIcon=document.getElementById('modalIcon'),
+modalTitle=document.getElementById('modalTitle'),modalMessage=document.getElementById('modalMessage'),
+modalCloseBtn=document.getElementById('modalCloseBtn');
+function showModal(kind,title,msg){
+  modalIcon.className='modal-icon '+kind;
+  modalIcon.innerHTML=kind==='loading'?'<div class="spinner"></div>':(kind==='success'?'\u2713':'\u2715');
+  modalTitle.textContent=title;modalMessage.textContent=msg;
+  modalCloseBtn.classList.toggle('show',kind!=='loading');
+  statusModal.hidden=false;
+}
+const hideModal=()=>{statusModal.hidden=true};
+modalCloseBtn.addEventListener('click',hideModal);
+statusModal.addEventListener('click',e=>{if(e.target===statusModal&&modalCloseBtn.classList.contains('show'))hideModal()});
+
+/* ---------- PNG CAPTURE ---------- */
+async function renderFullSystemCanvas(){
+  if(typeof html2canvas!=='function')throw new Error('Hindi na-load ang PNG capture library. Pakisuri ang internet connection at i-reload ang page.');
+  const container=document.getElementById('systemContainer');
+  document.body.classList.add('exporting');
+  const clone=container.cloneNode(true);
+  clone.id='pngExportClone';
+  ['#toolbarActions','#sharedNote','#statusModal'].forEach(s=>{const e=clone.querySelector(s);if(e)e.remove()});
+  clone.querySelectorAll('button').forEach(b=>{b.style.pointerEvents='none'});
+  clone.style.width=Math.max(container.scrollWidth,1240)+'px';
+  clone.style.maxWidth='1240px';clone.style.margin='0';clone.style.position='absolute';
+  clone.style.left='-100000px';clone.style.top='0';
+  clone.style.background=getComputedStyle(container).backgroundColor;
+  document.body.appendChild(clone);
+  const oi=document.getElementById('lguName'),ci=clone.querySelector('#lguName');
+  if(oi&&ci)ci.value=oi.value;
+  const os=document.getElementById('pillarSelect'),cs=clone.querySelector('#pillarSelect');
+  if(os&&cs)cs.value=os.value;
+  await new Promise(r=>requestAnimationFrame(r));
+  try{
+    return await html2canvas(clone,{backgroundColor:'#F6F4EC',scale:2,useCORS:true,allowTaint:false,logging:false,imageTimeout:15000,scrollX:0,scrollY:0,windowWidth:clone.scrollWidth,windowHeight:clone.scrollHeight});
+  }finally{clone.remove();document.body.classList.remove('exporting')}
+}
+
+function downloadCanvasAsPng(canvas,fileName){
+  return new Promise((resolve,reject)=>{
+    canvas.toBlob(blob=>{
+      if(!blob){reject(new Error('Hindi nagawa ang PNG file.'));return}
+      const url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=fileName;a.style.display='none';
+      document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1500);resolve();
+    },'image/png');
+  });
+}
+
+async function saveEntryAndReport(){
+  const btn=document.getElementById('saveAllBtn');
+  const officeName=(document.getElementById('lguName').value||'').trim();
+  /* Sector = dropdown value (Social / Economic / Environmental / Infrastructure / Institutional).
+     The Apps Script uses it as the Google Drive folder name. */
+  const sector=(document.getElementById('pillarSelect').value||'').trim();
+
+  if(!sector){showModal('error','Kulang ang Impormasyon','Pumili muna ng Sektor bago i-save.');return}
+  if(!officeName){showModal('error','Kulang ang Impormasyon','Pakilagay ang Pangalan ng Opisina/Departamento bago i-save.');return}
+
+  const originalLabel=btn.textContent;
+  btn.disabled=true;btn.textContent='Sine-save…';
+  showModal('loading','Sine-save…','Rendering your matrix, downloading your copy, and uploading it to Google Drive. Please don\u2019t close this window.');
+
+  try{
+    const canvas=await renderFullSystemCanvas();
+    const pngFileName=toFileName(officeName)+'_SDG_5Ps_Audit.png';
+    await downloadCanvasAsPng(canvas,pngFileName);
+
+    let driveSaved=false,driveError=null;
+    if(sheetConfigured()){
+      try{
+        const pngBase64=canvas.toDataURL('image/png').split('base64,')[1];
+        await fetch(GOOGLE_SHEET_WEB_APP_URL,{
+          method:'POST',mode:'no-cors',
+          headers:{'Content-Type':'text/plain;charset=utf-8'},
+          body:JSON.stringify({
+            action:'saveFile',fileType:'png',fileName:pngFileName,mimeType:'image/png',
+            sector:sector,   /* new: folder name = sector */
+            pillar:sector,   /* kept for backward compatibility with the existing script */
+            base64:pngBase64
+          })
+        });
+        driveSaved=true;
+      }catch(e){console.error(e);driveError=e}
+    }
+
+    if(driveSaved){
+      btn.textContent='Saved!';
+      showModal( 'success',
+          'Saved Successfully',
+          'Your matrix PNG was saved to Google Drive and a copy was downloaded to your device.');
+    }else if(driveError){
+      btn.textContent=originalLabel;
+      showModal(          'error',
+          'Downloaded, but Upload Failed',
+          'Your PNG copy was downloaded to your device, but it could not be uploaded to Google Drive. Please check your connection and press Save Matrix again.');
+    }else{
+      btn.textContent=originalLabel;
+      showModal(          'success',
+          'Downloaded',
+          'Your matrix PNG was downloaded to your device. Google Drive saving is not configured.');
+    }
+  }catch(err){
+    console.error(err);
+    showModal('error','Save Failed',(err&&err.message)?err.message:'Something went wrong while saving this entry. Please check your connection and try again.');
+    btn.textContent=originalLabel;
+  }finally{
+    setTimeout(()=>{btn.disabled=false;if(btn.textContent==='Sine-save…')btn.textContent=originalLabel},1500);
+  }
+}
+document.getElementById('saveAllBtn').addEventListener('click',saveEntryAndReport);
+
+buildDiagram();buildControls();updateDiagram();
 })();
 </script>
-
 </body>
 </html>
