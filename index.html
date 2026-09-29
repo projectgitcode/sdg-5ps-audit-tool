@@ -104,6 +104,12 @@ footer.note{margin-top:26px;text-align:center;font-size:12px;color:var(--ink-sof
     </select>
     <label for="lguName">Pangalan ng Opisina/Departamento: <i>(Name of Office/Department)</i></label>
     <input id="lguName" type="text" />
+    <label for="sessionSelect" style="margin-top:10px">Yugto ng FGD: <i>(FGD Stage)</i></label>
+    <select id="sessionSelect">
+      <option value="">Pumili ng Yugto… (Select a Stage)</option>
+      <option value="PRE-FGD">PRE-FGD</option>
+      <option value="POST-FGD">POST-FGD</option>
+    </select>
   </div>
 </header>
 
@@ -339,6 +345,8 @@ async function renderFullSystemCanvas(){
   if(oi&&ci)ci.value=oi.value;
   const os=document.getElementById('pillarSelect'),cs=clone.querySelector('#pillarSelect');
   if(os&&cs)cs.value=os.value;
+  const ose=document.getElementById('sessionSelect'),cse=clone.querySelector('#sessionSelect');
+  if(ose&&cse)cse.value=ose.value;
   await new Promise(r=>requestAnimationFrame(r));
   try{
     return await html2canvas(clone,{backgroundColor:'#F6F4EC',scale:2,useCORS:true,allowTaint:false,logging:false,imageTimeout:15000,scrollX:0,scrollY:0,windowWidth:clone.scrollWidth,windowHeight:clone.scrollHeight});
@@ -357,6 +365,11 @@ function downloadCanvasAsPng(canvas,fileName){
   });
 }
 
+function timestamp(){
+  const d=new Date(),z=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'_'+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds());
+}
+
 async function saveEntryAndReport(){
   const btn=document.getElementById('saveAllBtn');
   const officeName=(document.getElementById('lguName').value||'').trim();
@@ -366,6 +379,8 @@ async function saveEntryAndReport(){
 
   if(!sector){showModal('error','Kulang ang Impormasyon','Pumili muna ng Sektor bago i-save.');return}
   if(!officeName){showModal('error','Kulang ang Impormasyon','Pakilagay ang Pangalan ng Opisina/Departamento bago i-save.');return}
+  const session=(document.getElementById('sessionSelect').value||'').trim();
+  if(!session){showModal('error','Kulang ang Impormasyon','Pumili muna ng PRE-FGD o POST-FGD bago i-save.');return}
 
   const originalLabel=btn.textContent;
   btn.disabled=true;btn.textContent='Saving…';
@@ -373,7 +388,8 @@ async function saveEntryAndReport(){
 
   try{
     const canvas=await renderFullSystemCanvas();
-    const pngFileName=toFileName(officeName)+'_SDG_5Ps_Audit.png';
+    /* Unique name per submission: Office_Stage_Date_Time -> PRE-FGD and POST-FGD never overwrite each other */
+    const pngFileName=toFileName(officeName)+'_'+session+'_'+timestamp()+'_SDG_5Ps_Audit.png';
     await downloadCanvasAsPng(canvas,pngFileName);
 
     let driveSaved=false,driveError=null;
@@ -385,6 +401,8 @@ async function saveEntryAndReport(){
           headers:{'Content-Type':'text/plain;charset=utf-8'},
           body:JSON.stringify({
             action:'saveFile',fileType:'png',fileName:pngFileName,mimeType:'image/png',
+            session:session,
+            folderPath:session+'/'+sector,   /* e.g. PRE-FGD/Social */
             sector:sector,   /* new: folder name = sector */
             pillar:sector,   /* kept for backward compatibility with the existing script */
             base64:pngBase64
@@ -396,19 +414,13 @@ async function saveEntryAndReport(){
 
     if(driveSaved){
       btn.textContent='Saved!';
-      showModal( 'success',
-          'Saved Successfully',
-          'Your matrix PNG was saved to Google Drive and a copy was downloaded to your device.');
+      showModal('success','Saved Successfully','Your matrix PNG was saved to Google Drive (folder: '+session+' / '+sector+') and a copy was downloaded to your device.');
     }else if(driveError){
       btn.textContent=originalLabel;
-      showModal(          'error',
-          'Downloaded, but Upload Failed',
-          'Your PNG copy was downloaded to your device, but it could not be uploaded to Google Drive. Please check your connection and press Save Matrix again.');
+      showModal('error','Downloaded, but Upload Failed','Your PNG copy was downloaded to your device, but it could not be uploaded to Google Drive. Please check your connection and press Save the Matrix again.');
     }else{
       btn.textContent=originalLabel;
-      showModal(          'success',
-          'Downloaded',
-          'Your matrix PNG was downloaded to your device. Google Drive saving is not configured.');
+      showModal('success','Downloaded','Your matrix PNG was downloaded to your device. Google Drive saving is not configured.');
     }
   }catch(err){
     console.error(err);
