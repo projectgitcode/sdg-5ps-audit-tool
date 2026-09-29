@@ -414,7 +414,7 @@ async function saveEntryAndReport(){
 
     if(driveSaved){
       btn.textContent='Saved!';
-      showModal('success','Saved Successfully','Your matrix PNG was saved to Google Drive (folder: '+session+' / '+sector+') and a copy was downloaded to your device.');
+      showModal('success','Saved Successfully','Your matrix PNG was saved to Google Drive and a copy was downloaded to your device.');
     }else if(driveError){
       btn.textContent=originalLabel;
       showModal('error','Downloaded, but Upload Failed','Your PNG copy was downloaded to your device, but it could not be uploaded to Google Drive. Please check your connection and press Save the Matrix again.');
