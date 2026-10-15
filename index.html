@@ -396,18 +396,20 @@ async function saveEntryAndReport(){
   showModal('loading','Saving…','Sine-save ang inyong sagot. Huwag isara ang window na ito.');
 
   try{
-    await sleep(Math.random()*2000); /* spreads out simultaneous submissions */
-    const sheet=await postWithRetry({action:'saveResponse',id:id,sector:sector,office:officeName,answers:answers});
-
-    let drive={ok:false},pngNote='';
-    try{
-      const canvas=await renderFullSystemCanvas();
-      const name=toFileName(officeName)+'_'+timestamp()+'_SDG_5Ps_Diagram.png';
-      if(!isIOS){try{await downloadCanvasAsPng(canvas,name)}catch(e){console.warn(e)}}
-      const b64=canvas.toDataURL('image/png').split('base64,')[1];
-      if(!b64)throw new Error('Canvas too large');
-      drive=await postWithRetry({action:'saveFile',id:id,sector:sector,fileName:name,mimeType:'image/png',base64:b64});
-    }catch(e){console.error(e);pngNote=' (Hindi nagawa ang PNG sa device na ito.)'}
+    await sleep(Math.random()*800);
+    const sheetP=postWithRetry({action:'saveResponse',id:id,sector:sector,office:officeName,answers:answers});
+    const driveP=(async()=>{
+      try{
+        const canvas=await renderFullSystemCanvas();
+        const name=toFileName(officeName)+'_'+timestamp()+'_SDG_5Ps_Diagram.png';
+        if(!isIOS){try{await downloadCanvasAsPng(canvas,name)}catch(e){console.warn(e)}}
+        const b64=canvas.toDataURL('image/png').split('base64,')[1];
+        if(!b64)throw new Error('Canvas too large');
+        return await postWithRetry({action:'saveFile',id:id,sector:sector,fileName:name,mimeType:'image/png',base64:b64});
+      }catch(e){console.error(e);return{ok:false,note:' (Hindi nagawa ang PNG sa device na ito.)'}}
+    })();
+    const [sheet,drive]=await Promise.all([sheetP,driveP]);
+    const pngNote=drive.note||'';
 
     if(!sheet.ok){
       btn.textContent=originalLabel;
