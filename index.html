@@ -18,7 +18,7 @@ h1{font-size:26px;margin:0;letter-spacing:-.01em;color:var(--forest-deep)}
 .lgu-field{display:flex;flex-direction:column;gap:4px;min-width:260px}
 .lgu-field label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:700}
 .lgu-field label i{text-transform:none;letter-spacing:0;font-weight:400}
-.lgu-field input,.lgu-field select{font-size:15px;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font-family:inherit}
+.lgu-field input,.lgu-field select{font-size:16px;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font-family:inherit}
 .lgu-field select{margin-bottom:10px;cursor:pointer}
 .lgu-field input:focus,.lgu-field select:focus{outline:2px solid var(--forest);outline-offset:1px}
 .toolbar{margin:4px 0 18px;background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);padding:18px 20px}
@@ -74,7 +74,6 @@ footer.note{margin-top:26px;text-align:center;font-size:12px;color:var(--ink-sof
 .modal-message{font-size:13.5px;color:var(--ink-soft);margin:0 0 20px;line-height:1.5}
 .modal-close{display:none}
 .modal-close.show{display:inline-block}
-.exporting .diagram-card{position:static !important;top:auto !important}
 @media(max-width:960px){main.layout{grid-template-columns:1fr}.diagram-card{position:static !important;top:auto;order:2}.dimensions{order:1}}
 @media(max-width:640px){.question{grid-template-columns:1fr}.toggle{height:44px}.toggle button{font-size:15px}}
 @media(max-width:480px){h1{font-size:21px}.lgu-field{min-width:0;width:100%}.app{padding:18px 14px 44px}}
@@ -104,12 +103,6 @@ footer.note{margin-top:26px;text-align:center;font-size:12px;color:var(--ink-sof
     </select>
     <label for="lguName">Pangalan ng Opisina/Departamento: <i>(Name of Office/Department)</i></label>
     <input id="lguName" type="text" />
-    <!-- <label for="sessionSelect" style="margin-top:10px">Sesyon: <i>(Session)</i></label> -->
-    <!-- <select id="sessionSelect">
-      <option value="">Pumili ng Sesyon… (Select a Session)</option>
-      <option value="PRE-FGD">PRE-FGD</option>
-      <option value="POST-FGD">POST-FGD</option>
-    </select> -->
   </div>
 </header>
 
@@ -160,7 +153,6 @@ footer.note{margin-top:26px;text-align:center;font-size:12px;color:var(--ink-sof
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 (function(){
 const COLORS={A:'#2E9E4F',B:'#F0BF2C',C:'#DE4B45',U:'#DEDBCC'};
@@ -308,9 +300,29 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
   updateDiagram();
 });
 
-/* ---------- GOOGLE APPS SCRIPT (Drive upload) ---------- */
+/* ---------- BACKEND (Google Apps Script) ---------- */
 const GOOGLE_SHEET_WEB_APP_URL='https://script.google.com/macros/s/AKfycbxYTTy69x-PWDVsRhanFqNzEz_LgQjPwmgyZqdwfS3TxnDcY3CjRNh3uQCfDzyoxb9UNg/exec';
-const sheetConfigured=()=>!!GOOGLE_SHEET_WEB_APP_URL;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+
+/* POST with retry + backoff. Server dedupes by id, so retries are safe. */
+async function postWithRetry(payload){
+  const body=JSON.stringify(payload),headers={'Content-Type':'text/plain;charset=utf-8'};
+  const delays=[1500,3500,7000,12000,20000];
+  for(let i=0;i<=delays.length;i++){
+    try{
+      const res=await fetch(GOOGLE_SHEET_WEB_APP_URL,{method:'POST',headers,body});
+      const json=await res.json();
+      if(json&&json.ok)return{ok:true,confirmed:true};
+      if(json&&json.retry===false)return{ok:false,error:json.error};
+    }catch(e){console.warn('attempt',i+1,e)}
+    if(i<delays.length)await sleep(delays[i]+Math.random()*2000);
+  }
+  try{ /* last resort: send blind; can't read the reply */
+    await fetch(GOOGLE_SHEET_WEB_APP_URL,{method:'POST',mode:'no-cors',headers,body});
+    return{ok:true,confirmed:false};
+  }catch(e){return{ok:false,error:String(e)}}
+}
 
 /* ---------- MODAL ---------- */
 const statusModal=document.getElementById('statusModal'),modalIcon=document.getElementById('modalIcon'),
@@ -327,30 +339,27 @@ const hideModal=()=>{statusModal.hidden=true};
 modalCloseBtn.addEventListener('click',hideModal);
 statusModal.addEventListener('click',e=>{if(e.target===statusModal&&modalCloseBtn.classList.contains('show'))hideModal()});
 
-/* ---------- PNG CAPTURE ---------- */
+/* ---------- PNG = DIAGRAM ONLY (drawn straight from the SVG; light and iPhone-safe) ---------- */
 async function renderFullSystemCanvas(){
-  if(typeof html2canvas!=='function')throw new Error('Hindi na-load ang PNG capture library. Pakisuri ang internet connection at i-reload ang page.');
-  const container=document.getElementById('systemContainer');
-  document.body.classList.add('exporting');
-  const clone=container.cloneNode(true);
-  clone.id='pngExportClone';
-  ['#toolbarActions','#sharedNote','#statusModal'].forEach(s=>{const e=clone.querySelector(s);if(e)e.remove()});
-  clone.querySelectorAll('button').forEach(b=>{b.style.pointerEvents='none'});
-  clone.style.width=Math.max(container.scrollWidth,1240)+'px';
-  clone.style.maxWidth='1240px';clone.style.margin='0';clone.style.position='absolute';
-  clone.style.left='-100000px';clone.style.top='0';
-  clone.style.background=getComputedStyle(container).backgroundColor;
-  document.body.appendChild(clone);
-  const oi=document.getElementById('lguName'),ci=clone.querySelector('#lguName');
-  if(oi&&ci)ci.value=oi.value;
-  const os=document.getElementById('pillarSelect'),cs=clone.querySelector('#pillarSelect');
-  if(os&&cs)cs.value=os.value;
-  const ose=document.getElementById('sessionSelect'),cse=clone.querySelector('#sessionSelect');
-  if(ose&&cse)cse.value=ose.value;
-  await new Promise(r=>requestAnimationFrame(r));
-  try{
-    return await html2canvas(clone,{backgroundColor:'#F6F4EC',scale:2,useCORS:true,allowTaint:false,logging:false,imageTimeout:15000,scrollX:0,scrollY:0,windowWidth:clone.scrollWidth,windowHeight:clone.scrollHeight});
-  }finally{clone.remove();document.body.classList.remove('exporting')}
+  const office=(document.getElementById('lguName').value||'').trim();
+  const sector=(document.getElementById('pillarSelect').value||'').trim();
+  const S=2,W=620,H=750;
+  const node=document.getElementById('diagramSvg').cloneNode(true);
+  node.setAttribute('width',620);node.setAttribute('height',620);
+  const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(node));
+  const img=new Image();
+  await new Promise((res,rej)=>{img.onload=res;img.onerror=()=>rej(new Error('Hindi nagawa ang diagram.'));img.src=url});
+  const c=document.createElement('canvas');c.width=W*S;c.height=H*S;
+  const g=c.getContext('2d');g.scale(S,S);
+  g.fillStyle='#FFFFFF';g.fillRect(0,0,W,H);
+  g.fillStyle='#123D28';g.textAlign='center';
+  g.font='800 22px Arial, sans-serif';g.fillText('SDG 5Ps Audit Tool',W/2,34);
+  g.font='600 16px Arial, sans-serif';g.fillText(office+'  |  '+sector,W/2,62);
+  g.drawImage(img,0,80,620,620);
+  const L=[['A  On Track','#2E9E4F'],['B  Progressing','#F0BF2C'],['C  Regressing','#DE4B45'],['Unrated','#DEDBCC']];
+  g.textAlign='left';g.font='13px Arial, sans-serif';
+  L.forEach((l,i)=>{const x=25+i*150;g.fillStyle=l[1];g.fillRect(x,722,14,14);g.fillStyle='#4B5A4F';g.fillText(l[0],x+20,734)});
+  return c;
 }
 
 function downloadCanvasAsPng(canvas,fileName){
@@ -370,62 +379,49 @@ function timestamp(){
   return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'_'+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds());
 }
 
+/* ---------- SAVE: 1) Google Sheet row (priority)  2) PNG -> Drive/<Sector> ---------- */
 async function saveEntryAndReport(){
   const btn=document.getElementById('saveAllBtn');
   const officeName=(document.getElementById('lguName').value||'').trim();
-  /* Sector = dropdown value (Social / Economic / Environmental / Infrastructure / Institutional).
-     The Apps Script uses it as the Google Drive folder name. */
   const sector=(document.getElementById('pillarSelect').value||'').trim();
-
   if(!sector){showModal('error','Kulang ang Impormasyon','Pumili muna ng Sektor bago i-save.');return}
   if(!officeName){showModal('error','Kulang ang Impormasyon','Pakilagay ang Pangalan ng Opisina/Departamento bago i-save.');return}
-  const session=(document.getElementById('sessionSelect').value||'').trim();
-  if(!session){showModal('error','Kulang ang Impormasyon','Pumili muna ng PRE-FGD o POST-FGD bago i-save.');return}
+
+  const id=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2);
+  const answers=[];
+  DIMENSIONS.forEach(d=>state[d.id].forEach(v=>answers.push(v||'')));
 
   const originalLabel=btn.textContent;
   btn.disabled=true;btn.textContent='Saving…';
-  showModal('loading','Saving…','Rendering your matrix, downloading your copy, and uploading it to Google Drive. Please don\u2019t close this window.');
+  showModal('loading','Saving…','Sine-save ang inyong sagot. Huwag isara ang window na ito.');
 
   try{
-    const canvas=await renderFullSystemCanvas();
-    /* Unique name per submission: Office_Stage_Date_Time -> PRE-FGD and POST-FGD never overwrite each other */
-    const pngFileName=toFileName(officeName)+'_'+session+'_'+timestamp()+'_SDG_5Ps_Audit.png';
-    await downloadCanvasAsPng(canvas,pngFileName);
+    await sleep(Math.random()*2000); /* spreads out simultaneous submissions */
+    const sheet=await postWithRetry({action:'saveResponse',id:id,sector:sector,office:officeName,answers:answers});
 
-    let driveSaved=false,driveError=null;
-    if(sheetConfigured()){
-      try{
-        const pngBase64=canvas.toDataURL('image/png').split('base64,')[1];
-        await fetch(GOOGLE_SHEET_WEB_APP_URL,{
-          method:'POST',mode:'no-cors',
-          headers:{'Content-Type':'text/plain;charset=utf-8'},
-          body:JSON.stringify({
-            action:'saveFile',fileType:'png',fileName:pngFileName,mimeType:'image/png',
-            session:session,
-            folderPath:session+'/'+sector,   /* e.g. PRE-FGD/Social */
-            sector:sector,   /* new: folder name = sector */
-            pillar:sector,   /* kept for backward compatibility with the existing script */
-            base64:pngBase64
-          })
-        });
-        driveSaved=true;
-      }catch(e){console.error(e);driveError=e}
-    }
+    let drive={ok:false},pngNote='';
+    try{
+      const canvas=await renderFullSystemCanvas();
+      const name=toFileName(officeName)+'_'+timestamp()+'_SDG_5Ps_Diagram.png';
+      if(!isIOS){try{await downloadCanvasAsPng(canvas,name)}catch(e){console.warn(e)}}
+      const b64=canvas.toDataURL('image/png').split('base64,')[1];
+      if(!b64)throw new Error('Canvas too large');
+      drive=await postWithRetry({action:'saveFile',id:id,sector:sector,fileName:name,mimeType:'image/png',base64:b64});
+    }catch(e){console.error(e);pngNote=' (Hindi nagawa ang PNG sa device na ito.)'}
 
-    if(driveSaved){
-      btn.textContent='Saved!';
-      showModal('success','Saved Successfully','Your matrix PNG was saved to Google Drive and a copy was downloaded to your device.');
-    }else if(driveError){
+    if(!sheet.ok){
       btn.textContent=originalLabel;
-      showModal('error','Downloaded, but Upload Failed','Your PNG copy was downloaded to your device, but it could not be uploaded to Google Drive. Please check your connection and press Save the Matrix again.');
+      showModal('error','Hindi Na-save','Hindi na-save ang sagot sa Google Sheet. Pakisuri ang internet at pindutin muli ang Save the Matrix.');
     }else{
-      btn.textContent=originalLabel;
-      showModal('success','Downloaded','Your matrix PNG was downloaded to your device. Google Drive saving is not configured.');
+      btn.textContent='Saved!';
+      const sheetMsg=sheet.confirmed?'Na-save ang inyong sagot sa Google Sheet.':'Naipadala ang inyong sagot, ngunit hindi ito makumpirma. Ipaalam sa organizer kung hindi lumabas.';
+      const driveMsg=drive.ok?' Na-upload rin ang PNG sa Google Drive.':' Hindi na-upload ang PNG sa Drive, pero ligtas ang inyong sagot sa Sheet.'+pngNote;
+      showModal('success','Saved Successfully',sheetMsg+driveMsg);
     }
   }catch(err){
     console.error(err);
-    showModal('error','Save Failed',(err&&err.message)?err.message:'Something went wrong while saving this entry. Please check your connection and try again.');
     btn.textContent=originalLabel;
+    showModal('error','Save Failed',(err&&err.message)?err.message:'May nangyaring mali. Pakisubukan muli.');
   }finally{
     setTimeout(()=>{btn.disabled=false;if(btn.textContent==='Saving…')btn.textContent=originalLabel},1500);
   }
